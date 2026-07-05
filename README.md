@@ -92,9 +92,15 @@ A client simulation utility is provided in `cmd/client-tester` to execute a full
 1.  **Catalog Retrieval**: Downloads asset catalogs from the Catalog Service.
 2.  **Contract Negotiation**: Submits negotiation request handshakes to the Control Plane.
 3.  **Flow Signaling**: Simulates Control Plane to Data Plane signaling to set up proxy definitions.
-4.  **Egress Retrieval**: Resolves data by passing the negotiated bearer token to the Data Plane reverse proxy, validating header injection routing to the backend (`https://httpbin.org`).
+4.  **Egress Retrieval**: Resolves data by passing the negotiated bearer token to the Data Plane reverse proxy, validating header injection routing to the backend (`http://control-plane:8081/mock-backend`).
 
 To execute the integration test (ensure the Docker stack is active first):
 ```bash
 go run cmd/client-tester/main.go
 ```
+
+---
+
+## 7. License
+
+This repository is licensed under the **GNU General Public License v2.0 (GPL-2.0)**. See the [LICENSE](file:///home/afinana/development/projects/go-dataspace-components/LICENSE) file for the full terms and conditions.
