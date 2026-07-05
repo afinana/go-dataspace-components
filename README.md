@@ -37,7 +37,49 @@ A production-ready, idiomatic Go monorepo implementing a custom Sovereign Datasp
 
 ---
 
-## 3. Getting Started
+## 3. Sovereign Data Flow Diagrams
+
+The sequence diagram below displays the end-to-end W3C Dataspace Protocol (DSP) handshake, signaling, and secure egress data flows executed in this connector stack:
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Consumer as Consumer Client
+    participant ID as Identity Hub (:8080)
+    participant Cat as Catalog Service (:8083)
+    participant CP as Control Plane (:8081)
+    participant DP as Data Plane (:8082)
+    participant BE as Target Provider Backend (:8081/mock-backend)
+
+    Note over Consumer, Cat: Step 1: Catalog Discovery
+    Consumer->>Cat: GET /catalog (Query Datasets)
+    Cat-->>Consumer: Returns DCAT-AP Catalog (Datasets & Policies)
+
+    Note over Consumer, CP: Step 2: Contract Negotiation (DSP Handshake)
+    Consumer->>CP: POST /protocol/negotiation/agreement (Submit Terms)
+    CP->>ID: Validate Consumer DID & Verifiable Credentials
+    ID-->>CP: VC Claims Validated (spatial=EU, role=Member)
+    CP-->>Consumer: Returns Contract Negotiation State (AGREED)
+
+    Note over Consumer, DP: Step 3: Data Flow Initialization & Signaling
+    Consumer->>CP: POST /protocol/transfer/start (Initiate Egress)
+    CP->>DP: POST /signaling/start (Register DataFlow mapping & EDR Token)
+    DP-->>CP: Egress Channel Mapped Successfully
+    CP-->>Consumer: Returns Transfer Process State (STARTED) & EDR Bearer Token
+
+    Note over Consumer, BE: Step 4: Secure Data Egress API Proxying
+    Consumer->>DP: GET /public/get (Request Data + EDR Bearer Token)
+    DP->>DP: Validate EDR Token & Extract Data Address Configuration
+    DP->>DP: Del "Authorization" (Scrub Consumer Auth)
+    DP->>DP: Set "X-Backend-Api-Key" (Inject Provider Secret Header)
+    DP->>BE: Forward request to http://control-plane:8081/mock-backend/get
+    BE-->>DP: Returns Data Payload & Injected headers validation
+    DP-->>Consumer: Returns Data Stream Response (200 OK)
+```
+
+---
+
+## 4. Getting Started
 
 ### Prerequisites
 *   **Go** version 1.26+ (baseline for Docker containers) or 1.22+ (local build)
@@ -62,7 +104,7 @@ This script runs the local package unit tests, validates compilation of all serv
 
 ---
 
-## 4. Port Allocations & API Endpoints
+## 5. Port Allocations & API Endpoints
 
 Once the stack is active:
 
@@ -77,7 +119,7 @@ Once the stack is active:
 
 ---
 
-## 5. Development & Contribution Rules
+## 6. Development & Contribution Rules
 
 All code contributions must respect the guidelines defined in [.agents/AGENTS.md](file:///.agents/AGENTS.md):
 *   Domain layers must never import third-party networking, routing, or database packages.
@@ -86,7 +128,7 @@ All code contributions must respect the guidelines defined in [.agents/AGENTS.md
 
 ---
 
-## 6. Client Integration Testing
+## 7. Client Integration Testing
 
 A client simulation utility is provided in `cmd/client-tester` to execute a full integration cycle:
 1.  **Catalog Retrieval**: Downloads asset catalogs from the Catalog Service.
@@ -101,6 +143,6 @@ go run cmd/client-tester/main.go
 
 ---
 
-## 7. License
+## 8. License
 
 This repository is licensed under the **GNU General Public License v2.0 (GPL-2.0)**. See the [LICENSE](file:///home/afinana/development/projects/go-dataspace-components/LICENSE) file for the full terms and conditions.
