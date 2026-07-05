@@ -1,0 +1,55 @@
+{{define "content"}}
+<div class="catalog-view">
+    <div class="card" style="margin-bottom: 24px;">
+        <h2 class="card-title">Browse Federated Dataspace Catalog</h2>
+        <p style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.5;">
+            Below is the parsed list of datasets published by the active connector. In a federated setup, this queries the network catalog indices dynamically using W3C DCAT-AP definitions.
+        </p>
+    </div>
+
+    <div class="table-container">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Asset ID</th>
+                    <th>Dataset Title</th>
+                    <th>Description</th>
+                    <th>Publisher</th>
+                    <th>Distribution Endpoint</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{if .}}
+                    {{if .Datasets}}
+                        {{range .Datasets}}
+                        <tr>
+                            <td><code>{{.ID}}</code></td>
+                            <td><strong>{{.Title}}</strong></td>
+                            <td style="color: var(--text-muted);">{{.Description}}</td>
+                            <td><span class="badge badge-warning" style="font-size: 0.7rem; font-family: monospace;">{{.Publisher}}</span></td>
+                            <td>
+                                {{range .Distributions}}
+                                <code style="font-size: 0.8rem; color: var(--accent-color);">{{.AccessURL}}</code>
+                                {{end}}
+                            </td>
+                        </tr>
+                        {{end}}
+                    {{else}}
+                        <tr>
+                            <td colspan="5" style="text-align: center; color: var(--text-muted); padding: 32px;">
+                                No remote datasets fetched in catalog query.
+                            </td>
+                        </tr>
+                    {{end}}
+                {{else}}
+                    <tr>
+                        <td colspan="5" style="text-align: center; color: var(--text-muted); padding: 32px;">
+                            Failed to connect to Catalog API.
+                        </td>
+                    </tr>
+                {{end}}
+            </tbody>
+        </table>
+    </div>
+</div>
+{{end}}

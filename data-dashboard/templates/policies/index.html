@@ -1,0 +1,59 @@
+{{define "content"}}
+<div class="policies-view">
+    <div class="card" style="margin-bottom: 32px;">
+        <h2 class="card-title">ODRL Policy Engine</h2>
+        <p style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.5; margin-bottom: 12px;">
+            Enforce digital usage permissions, obligations, and prohibitions securely across dataspaces. These policies govern when external consumers are allowed to download local datasets.
+        </p>
+        <button class="btn btn-secondary">Define Custom Policy (ODRL)</button>
+    </div>
+
+    <div class="card-grid">
+        <!-- Policy 1 -->
+        <div class="card">
+            <div class="card-title">
+                <span>EU-Only Membership Policy</span>
+                <span class="badge badge-success">Active</span>
+            </div>
+            <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 16px;">
+                Permits usage constraints restricted to EU members only. Validates participant context claims against geographic bounds.
+            </p>
+            <pre style="background: rgba(0,0,0,0.2); padding: 12px; border-radius: 8px; font-size: 0.75rem; font-family: monospace; overflow-x: auto; color: #a855f7;">
+{
+  "permission": [{
+    "action": "odrl:use",
+    "constraint": [{
+      "leftOperand": "spatial",
+      "operator": "eq",
+      "rightOperand": "EU"
+    }]
+  }]
+}
+            </pre>
+        </div>
+
+        <!-- Policy 2 -->
+        <div class="card">
+            <div class="card-title">
+                <span>Temporal Restriction Policy</span>
+                <span class="badge badge-success">Active</span>
+            </div>
+            <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 16px;">
+                Restricts transfer requests beyond specific dates or timestamps.
+            </p>
+            <pre style="background: rgba(0,0,0,0.2); padding: 12px; border-radius: 8px; font-size: 0.75rem; font-family: monospace; overflow-x: auto; color: #a855f7;">
+{
+  "permission": [{
+    "action": "odrl:read",
+    "constraint": [{
+      "leftOperand": "dateTime",
+      "operator": "lt",
+      "rightOperand": "2026-12-31"
+    }]
+  }]
+}
+            </pre>
+        </div>
+    </div>
+</div>
+{{end}}

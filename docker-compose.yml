@@ -1,0 +1,108 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: dataspace-postgres
+    environment:
+      POSTGRES_DB: dataspace_identity
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      # Automatically initialize the PostgreSQL schema with Identity Hub tables
+      - ./identity-hub/ports/schema.sql:/docker-entrypoint-initdb.d/1-schema.sql
+      # Automatically initialize the PostgreSQL schema with Catalog tables
+      - ./catalog/ports/schema.sql:/docker-entrypoint-initdb.d/2-catalog-schema.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d dataspace_identity"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  identity-hub:
+    build:
+      context: .
+      dockerfile: docker/identity-hub.Dockerfile
+    container_name: dataspace-identity-hub
+    ports:
+      - "8080:8080"
+    environment:
+      - PORT=8080
+      - LOG_LEVEL=DEBUG
+      - ENVIRONMENT=development
+      - SERVICE_NAME=identity-hub
+    depends_on:
+      postgres:
+        condition: service_started
+
+  control-plane:
+    build:
+      context: .
+      dockerfile: docker/control-plane.Dockerfile
+    container_name: dataspace-control-plane
+    ports:
+      - "8081:8081"
+    environment:
+      - PORT=8081
+      - LOG_LEVEL=DEBUG
+      - ENVIRONMENT=development
+      - SERVICE_NAME=control-plane
+    depends_on:
+      - identity-hub
+
+  data-plane:
+    build:
+      context: .
+      dockerfile: docker/data-plane.Dockerfile
+    container_name: dataspace-data-plane
+    ports:
+      - "8082:8082"
+    environment:
+      - PORT=8082
+      - LOG_LEVEL=DEBUG
+      - ENVIRONMENT=development
+      - SERVICE_NAME=data-plane
+    depends_on:
+      - control-plane
+
+  catalog:
+    build:
+      context: .
+      dockerfile: docker/catalog.Dockerfile
+    container_name: dataspace-catalog
+    ports:
+      - "8083:8083"
+    environment:
+      - PORT=8083
+      - LOG_LEVEL=DEBUG
+      - ENVIRONMENT=development
+      - SERVICE_NAME=catalog
+      - DATABASE_URL=postgres://postgres:postgres@postgres:5432/dataspace_identity?sslmode=disable
+    depends_on:
+      postgres:
+        condition: service_started
+
+  data-dashboard:
+    build:
+      context: .
+      dockerfile: docker/data-dashboard.Dockerfile
+    container_name: dataspace-data-dashboard
+    ports:
+      - "8084:8084"
+    environment:
+      - PORT=8084
+      - LOG_LEVEL=DEBUG
+      - ENVIRONMENT=development
+      - SERVICE_NAME=data-dashboard
+    depends_on:
+      - control-plane
+      - data-plane
+      - catalog
+      - identity-hub
+
+volumes:
+  pgdata:
+    driver: local

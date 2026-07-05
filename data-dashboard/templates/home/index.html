@@ -1,0 +1,53 @@
+{{define "content"}}
+<div class="home-view">
+    <div class="stats-container">
+        <div class="stat-card">
+            <span class="stat-label">Active Connections</span>
+            <span class="stat-value">{{.ConnectorsCount}}</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-label">Stored Credentials</span>
+            <span class="stat-value">{{.CredentialsCount}}</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-label">Dataspace Protocol</span>
+            <span class="stat-value">W3C DSP</span>
+        </div>
+    </div>
+
+    <div class="card" style="margin-bottom: 32px;">
+        <h2 class="card-title">Welcome to the Sovereign Dataspace Control Center</h2>
+        <p style="color: var(--text-muted); line-height: 1.6; margin-bottom: 16px;">
+            This management dashboard allows you to administer and orchestrate your custom Dataspace Connector node. You can register assets conforming to DCAT-AP specifications, coordinate ODRL usage policies, track contract negotiations, and monitor real-time data flows.
+        </p>
+        <div style="display: flex; gap: 12px;">
+            <a href="/assets" class="btn">Manage Local Assets</a>
+            <a href="/catalog" class="btn btn-secondary">Browse Federated Catalog</a>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2 class="card-title">Active Node Details</h2>
+        <table class="data-table" style="margin-top: 16px;">
+            <thead>
+                <tr>
+                    <th>Connector ID</th>
+                    <th>Name</th>
+                    <th>Control Plane</th>
+                    <th>Catalog API</th>
+                    <th>Data Plane</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>local-connector-01</code></td>
+                    <td>Sovereign Node Alpha (Local)</td>
+                    <td><code>http://control-plane:8081</code></td>
+                    <td><code>http://catalog:8083</code></td>
+                    <td><code>http://data-plane:8082</code></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+{{end}}

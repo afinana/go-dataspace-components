@@ -1,0 +1,38 @@
+{
+  "appTitle": "EDC Sovereign Data Dashboard",
+  "healthCheckIntervalSeconds": 30,
+  "initialTheme": "dark",
+  "enableUserConfig": false,
+  "menuItems": [
+    {
+      "text": "Overview",
+      "icon": "home",
+      "route": "/",
+      "description": "System status, metrics and connectivity health check overview."
+    },
+    {
+      "text": "Asset Catalog",
+      "icon": "folder",
+      "route": "/assets",
+      "description": "Register, inspect and update localized DCAT-AP dataset distributions."
+    },
+    {
+      "text": "Federated Catalog",
+      "icon": "search",
+      "route": "/catalog",
+      "description": "Browse and query remote datasets from peer connectors in the dataspace."
+    },
+    {
+      "text": "Policy Definitions",
+      "icon": "shield",
+      "route": "/policies",
+      "description": "Manage ODRL rules, usage conditions, constraints and contract offers."
+    },
+    {
+      "text": "Negotiations & Transfers",
+      "icon": "swap",
+      "route": "/transfer",
+      "description": "Monitor active contract negotiations and execute data plane transfer streams."
+    }
+  ]
+}

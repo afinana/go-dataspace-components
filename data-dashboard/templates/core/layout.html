@@ -1,0 +1,95 @@
+{{define "layout"}}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{.Title}}</title>
+    <link rel="stylesheet" href="/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="dark-theme">
+    <div class="app-layout">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <div class="brand-logo"></div>
+                <span class="brand-title">EDC Dashboard</span>
+            </div>
+            <nav class="sidebar-menu">
+                {{$activeTab := .ActiveTab}}
+                {{range .MenuItems}}
+                <a href="{{.Route}}" class="menu-item {{if eq .Text $activeTab}}active{{end}}">
+                    <span class="menu-icon icon-{{.Icon}}"></span>
+                    <span class="menu-text">{{.Text}}</span>
+                </a>
+                {{end}}
+            </nav>
+            <div class="sidebar-footer">
+                <span class="footer-version">v0.1.0 (Go-EDC)</span>
+            </div>
+        </aside>
+
+        <!-- Main Body -->
+        <div class="main-container">
+            <!-- Header Bar -->
+            <header class="header">
+                <div class="header-left">
+                    <h1 class="page-title">{{.ActiveTab}}</h1>
+                </div>
+                <div class="header-right">
+                    <!-- Connector Switcher -->
+                    <div class="connector-select-wrapper">
+                        <label for="connector-select" class="select-label">Active Node:</label>
+                        <select id="connector-select" class="connector-select" onchange="switchConnector(this.value)">
+                            {{$activeConn := .ActiveConnID}}
+                            {{range .Connectors}}
+                            <option value="{{.ID}}" {{if eq .ID $activeConn}}selected{{end}}>{{.Name}}</option>
+                            {{end}}
+                        </select>
+                    </div>
+
+                    <!-- Theme Switcher -->
+                    <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle Theme">
+                        <span class="theme-icon"></span>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Rendered Page Content -->
+            <main class="content-wrapper">
+                {{template "content" .Data}}
+            </main>
+        </div>
+    </div>
+
+    <!-- Layout scripts -->
+    <script>
+        function switchConnector(val) {
+            const url = new URL(window.location.href);
+            url.searchParams.set('connector', val);
+            window.location.href = url.toString();
+        }
+
+        function toggleTheme() {
+            const body = document.body;
+            if (body.classList.contains('dark-theme')) {
+                body.classList.replace('dark-theme', 'light-theme');
+                localStorage.setItem('theme', 'light');
+            } else {
+                body.classList.replace('light-theme', 'dark-theme');
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+
+        // Apply saved theme preference on page load
+        (function() {
+            const savedTheme = localStorage.getItem('theme') || 'dark';
+            if (savedTheme === 'light') {
+                document.body.classList.replace('dark-theme', 'light-theme');
+            }
+        })();
+    </script>
+</body>
+</html>
+{{end}}

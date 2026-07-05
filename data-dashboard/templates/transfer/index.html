@@ -1,0 +1,75 @@
+{{define "content"}}
+<div class="transfer-view">
+    <div class="card" style="margin-bottom: 32px;">
+        <h2 class="card-title">Contract Negotiations & Handshakes</h2>
+        <div class="table-container" style="margin-top: 16px;">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Negotiation ID</th>
+                        <th>Correlation ID</th>
+                        <th>CounterParty</th>
+                        <th>State</th>
+                        <th>Created At</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{if .Negotiations}}
+                        {{range .Negotiations}}
+                        <tr>
+                            <td><code>{{.ID}}</code></td>
+                            <td><code>{{.CorrelationID}}</code></td>
+                            <td><span style="font-family: monospace; font-size: 0.8rem;">{{.CounterParty}}</span></td>
+                            <td><span class="badge badge-warning">{{.State}}</span></td>
+                            <td style="color: var(--text-muted); font-size: 0.8rem;">{{.CreatedAt.Format "2006-01-02 15:04:05"}}</td>
+                        </tr>
+                        {{end}}
+                    {{else}}
+                        <tr>
+                            <td colspan="5" style="text-align: center; color: var(--text-muted); padding: 24px;">
+                                No negotiations triggered.
+                            </td>
+                        </tr>
+                    {{end}}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2 class="card-title">Transfer Processes & Active Streams</h2>
+        <div class="table-container" style="margin-top: 16px;">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Transfer ID</th>
+                        <th>Agreement ID</th>
+                        <th>Asset ID</th>
+                        <th>State</th>
+                        <th>Created At</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{if .Transfers}}
+                        {{range .Transfers}}
+                        <tr>
+                            <td><code>{{.ID}}</code></td>
+                            <td><code>{{.ContractAgreementID}}</code></td>
+                            <td><code>{{.AssetID}}</code></td>
+                            <td><span class="badge badge-success">{{.State}}</span></td>
+                            <td style="color: var(--text-muted); font-size: 0.8rem;">{{.CreatedAt.Format "2006-01-02 15:04:05"}}</td>
+                        </tr>
+                        {{end}}
+                    {{else}}
+                        <tr>
+                            <td colspan="5" style="text-align: center; color: var(--text-muted); padding: 24px;">
+                                No active data transfer flows.
+                            </td>
+                        </tr>
+                    {{end}}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{{end}}
