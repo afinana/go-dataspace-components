@@ -110,8 +110,8 @@ Once the stack is active:
 
 | Service | Port | Endpoint Paths | Description |
 | :--- | :--- | :--- | :--- |
-| **Identity Hub** | `8080` | `POST /presentations/query`<br>`POST /credentials` | Handles VC query parameters, credential ingestion, and identity verification. |
-| **Control Plane** | `8081` | `POST /protocol/negotiation/request`<br>`POST /protocol/negotiation/agreement`<br>`POST /protocol/transfer/start` | Handles W3C Dataspace Protocol (DSP) handshakes and negotiations. |
+| **Identity Hub** | `8080` | `POST /presentations/query`<br>`POST /credentials`<br>`GET/POST /api/identity/v1alpha/dids`<br>`GET /api/identity/v1alpha/credentials`<br>`GET /api/identity/v1alpha/participants/{id}/credentials` | Handles VC query parameters, credential ingestion, and Identity Hub API v1alpha. |
+| **Control Plane** | `8081` | `POST /protocol/negotiation/request`<br>`POST /protocol/negotiation/agreement`<br>`POST /protocol/transfer/start`<br>`POST /api/mgmt/v4/catalog/request`<br>`POST /api/mgmt/v4/contractnegotiations`<br>`POST /api/mgmt/v4/contractnegotiations/request`<br>`POST /api/mgmt/v4/transferprocesses`<br>`POST /api/mgmt/v4/transferprocesses/request` | Handles W3C DSP negotiations and EDC Management API v4 compatibility. |
 | **Data Plane** | `8082` | `POST /signaling/start`<br>`POST /signaling/terminate`<br>`GET /public/*` | Performs signaling loops with the CP and acts as the reverse-proxy endpoint. |
 | **Catalog** | `8083` | `GET /catalog`<br>`GET /catalog/datasets`<br>`POST /catalog/datasets`<br>`DELETE /catalog/datasets/{id}` | Standard W3C DCAT API registry for datasets, distributions, and catalog requests. |
 | **Data Dashboard** | `8084` | `GET /`<br>`GET /assets`<br>`GET /catalog`<br>`GET /policies`<br>`GET /transfer` | Sovereign Node Management GUI matching Eclipse EDC DataDashboard modular views. |
