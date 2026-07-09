@@ -14,13 +14,15 @@ import (
 type PresentationAPIHandler struct {
 	mu          sync.RWMutex
 	logger      *slog.Logger
+	dbStore     *PostgresVCStore
 	credentials map[string]domain.VerifiableCredential
 }
 
 // NewPresentationAPIHandler initializes the presentation and credential HTTP API handler.
-func NewPresentationAPIHandler(logger *slog.Logger) *PresentationAPIHandler {
+func NewPresentationAPIHandler(logger *slog.Logger, dbStore *PostgresVCStore) *PresentationAPIHandler {
 	return &PresentationAPIHandler{
 		logger:      logger,
+		dbStore:     dbStore,
 		credentials: make(map[string]domain.VerifiableCredential),
 	}
 }
@@ -62,20 +64,39 @@ func (h *PresentationAPIHandler) handleQuery(w http.ResponseWriter, r *http.Requ
 
 	// Filter VCs matching the requested scopes
 	var matchedVCs []domain.VerifiableCredential
-	h.mu.RLock()
-	for _, vc := range h.credentials {
+	if h.dbStore != nil {
 		for _, scope := range req.Scopes {
-			// A scope can look like "org.eclipse.dspace.dcp.vc.type:XDataShareMembershipCredential"
-			// Check if any of the VC types match the suffix of the scope
-			for _, vcType := range vc.Type {
-				if vcType == scope || (scope != "" && (scope == vcType || (len(scope) > len(vcType) && scope[len(scope)-len(vcType):] == vcType))) {
-					matchedVCs = append(matchedVCs, vc)
-					break
+			// Query by scope from database. Pass a default context anchor "did:web:local-connector"
+			vcs, err := h.dbStore.FindByScope(r.Context(), "did:web:local-connector", scope)
+			if err != nil {
+				h.logger.Error("failed to query database for credentials by scope", "err", err, "scope", scope)
+				continue
+			}
+			matchedVCs = append(matchedVCs, vcs...)
+		}
+		// Deduplicate matched credentials by ID
+		dedupMap := make(map[string]domain.VerifiableCredential)
+		for _, vc := range matchedVCs {
+			dedupMap[vc.ID] = vc
+		}
+		matchedVCs = nil
+		for _, vc := range dedupMap {
+			matchedVCs = append(matchedVCs, vc)
+		}
+	} else {
+		h.mu.RLock()
+		for _, vc := range h.credentials {
+			for _, scope := range req.Scopes {
+				for _, vcType := range vc.Type {
+					if vcType == scope || (scope != "" && (scope == vcType || (len(scope) > len(vcType) && scope[len(scope)-len(vcType):] == vcType))) {
+						matchedVCs = append(matchedVCs, vc)
+						break
+					}
 				}
 			}
 		}
+		h.mu.RUnlock()
 	}
-	h.mu.RUnlock()
 
 	// Build the Verifiable Presentation envelope
 	vp := domain.VerifiablePresentation{
@@ -119,6 +140,18 @@ func (h *PresentationAPIHandler) handleCredentials(w http.ResponseWriter, r *htt
 
 	h.logger.Info("Received Verifiable Credential update/store request", "vcId", vc.ID, "issuer", vc.Issuer)
 
+	if h.dbStore != nil {
+		tenant := "did:web:local-connector"
+		if holder, ok := vc.CredentialSubject["holder"].(string); ok && holder != "" {
+			tenant = holder
+		}
+		if err := h.dbStore.Save(r.Context(), tenant, &vc); err != nil {
+			h.logger.Error("failed to save credential to postgres", "err", err, "vcId", vc.ID)
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+			return
+		}
+	}
+
 	h.mu.Lock()
 	h.credentials[vc.ID] = vc
 	h.mu.Unlock()
@@ -154,12 +187,22 @@ func (h *PresentationAPIHandler) handlePublishDid(w http.ResponseWriter, r *http
 func (h *PresentationAPIHandler) handleGetAllCredentials(w http.ResponseWriter, r *http.Request) {
 	h.logger.Info("Received credentials list query")
 	
-	h.mu.RLock()
 	var list []domain.VerifiableCredential
-	for _, vc := range h.credentials {
-		list = append(list, vc)
+	var err error
+	if h.dbStore != nil {
+		list, err = h.dbStore.ListAll(r.Context())
+		if err != nil {
+			h.logger.Error("failed to list credentials from database", "err", err)
+		}
 	}
-	h.mu.RUnlock()
+
+	if len(list) == 0 {
+		h.mu.RLock()
+		for _, vc := range h.credentials {
+			list = append(list, vc)
+		}
+		h.mu.RUnlock()
+	}
 
 	// If list is empty, return a default mock credential to satisfy Bruno tests
 	if len(list) == 0 {

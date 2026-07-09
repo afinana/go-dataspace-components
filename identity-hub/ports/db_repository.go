@@ -94,6 +94,37 @@ func (s *PostgresVCStore) FindByScope(ctx context.Context, participantContextID 
 	return result, nil
 }
 
+// ListAll retrieves all credentials registered in the hub.
+func (s *PostgresVCStore) ListAll(ctx context.Context) ([]domain.VerifiableCredential, error) {
+	query := `SELECT credential_payload FROM verifiable_credentials`
+	rows, err := s.db.QueryContext(ctx, query)
+	if err != nil {
+		return nil, fmt.Errorf("failed to query all credentials: %w", err)
+	}
+	defer rows.Close()
+
+	var result []domain.VerifiableCredential
+	for rows.Next() {
+		var payload []byte
+		if err := rows.Scan(&payload); err != nil {
+			return nil, fmt.Errorf("failed to scan row: %w", err)
+		}
+
+		var vc domain.VerifiableCredential
+		if err := json.Unmarshal(payload, &vc); err != nil {
+			return nil, fmt.Errorf("failed to unmarshal JSONB payload to credential struct: %w", err)
+		}
+
+		result = append(result, vc)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("rows traversal error: %w", err)
+	}
+
+	return result, nil
+}
+
 // Helper to join types with commas for postgres arrays
 func stringsJoinQuotes(items []string) string {
 	var escaped []string

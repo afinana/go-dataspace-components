@@ -22,15 +22,17 @@ import (
 type APIProxyController struct {
 	mu           sync.RWMutex
 	logger       *slog.Logger
+	dbStore      *PostgresDataFlowStore
 	// activeFlows maps token -> DataFlowRequest containing backend source endpoint and auth credentials
 	activeFlows  map[string]*dp.DataFlowRequest
 	reverseProxy *httputil.ReverseProxy
 }
 
 // NewAPIProxyController initializes the API reverse proxy.
-func NewAPIProxyController(logger *slog.Logger) *APIProxyController {
+func NewAPIProxyController(logger *slog.Logger, dbStore *PostgresDataFlowStore) *APIProxyController {
 	controller := &APIProxyController{
 		logger:      logger,
+		dbStore:     dbStore,
 		activeFlows: make(map[string]*dp.DataFlowRequest),
 	}
 
@@ -54,6 +56,10 @@ func NewAPIProxyController(logger *slog.Logger) *APIProxyController {
 		defaultFlow.SourceDataAddress.Properties["endpoint"] = "http://control-plane:8081/mock-backend"
 	}
 	controller.activeFlows["consumer-test-token"] = defaultFlow
+
+	if dbStore != nil {
+		_ = dbStore.Save(context.Background(), "consumer-test-token", defaultFlow)
+	}
 
 	// Set up the custom reverse proxy engine
 	controller.reverseProxy = &httputil.ReverseProxy{
@@ -80,11 +86,16 @@ func (c *APIProxyController) Initiate(ctx context.Context, req *dp.DataFlowReque
 		return dp.DataFlowResponse{Success: false, ErrorDetail: "Unsupported data address types"}, nil
 	}
 
-	// In a real EDC connector, this would be a secure signed token (e.g. JWT) containing flow state.
-	// For simplicity in this scaffold, we generate a secure handle.
 	token := req.Properties["auth_token"]
 	if token == "" {
 		token = fmt.Sprintf("edr-%s-%d", req.ID, time.Now().UnixNano())
+	}
+
+	if c.dbStore != nil {
+		if err := c.dbStore.Save(ctx, token, req); err != nil {
+			c.logger.Error("failed to save data flow to database", "err", err, "flowId", req.ID)
+			return dp.DataFlowResponse{Success: false, ErrorDetail: err.Error()}, err
+		}
 	}
 
 	c.mu.Lock()
@@ -126,6 +137,25 @@ func (c *APIProxyController) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	c.mu.RUnlock()
+
+	if !exists && c.dbStore != nil {
+		if token != "" {
+			req, err := c.dbStore.FindByToken(r.Context(), token)
+			if err == nil {
+				flowRequest = req
+				exists = true
+			}
+		} else {
+			flowID := r.PathValue("flowId")
+			if flowID != "" {
+				_, req, err := c.dbStore.FindByFlowID(r.Context(), flowID)
+				if err == nil {
+					flowRequest = req
+					exists = true
+				}
+			}
+		}
+	}
 
 	if !exists {
 		c.logger.Warn("Unauthorized access attempt: missing auth or invalid token/flowId", "token", token)
@@ -228,11 +258,26 @@ func singleJoiningSlash(a, b string) string {
 
 // HandleFlowsList returns the list of active flow references.
 func (c *APIProxyController) HandleFlowsList(w http.ResponseWriter, r *http.Request) {
-	c.mu.RLock()
-	defer c.mu.RUnlock()
+	var flows map[string]*dp.DataFlowRequest
+	var err error
+	if c.dbStore != nil {
+		flows, err = c.dbStore.ListAll(r.Context())
+		if err != nil {
+			c.logger.Error("failed to query all flows from database", "err", err)
+		}
+	}
+
+	if len(flows) == 0 {
+		c.mu.RLock()
+		flows = make(map[string]*dp.DataFlowRequest)
+		for k, v := range c.activeFlows {
+			flows[k] = v
+		}
+		c.mu.RUnlock()
+	}
 
 	res := make(map[string]any)
-	for token, req := range c.activeFlows {
+	for token, req := range flows {
 		res[req.ID] = map[string]any{
 			"endpointProperties": []map[string]string{
 				{
@@ -255,15 +300,23 @@ func (c *APIProxyController) HandleFlowsDetail(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	c.mu.RLock()
-	defer c.mu.RUnlock()
-
 	var foundToken string
-	for token, req := range c.activeFlows {
-		if req.ID == flowID {
-			foundToken = token
-			break
+	if c.dbStore != nil {
+		t, _, err := c.dbStore.FindByFlowID(r.Context(), flowID)
+		if err == nil {
+			foundToken = t
 		}
+	}
+
+	if foundToken == "" {
+		c.mu.RLock()
+		for token, req := range c.activeFlows {
+			if req.ID == flowID {
+				foundToken = token
+				break
+			}
+		}
+		c.mu.RUnlock()
 	}
 
 	if foundToken == "" {

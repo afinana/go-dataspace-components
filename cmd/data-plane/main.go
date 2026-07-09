@@ -1,15 +1,18 @@
 package main
 
 import (
+	"database/sql"
 	"fmt"
 	"net/http"
 	"os"
+	"time"
 
 	dp "github.com/afinana/go-dataspace-components/data-plane/domain"
 	"github.com/afinana/go-dataspace-components/data-plane/ports"
 	"github.com/afinana/go-dataspace-components/internal/pkg/config"
 	"github.com/afinana/go-dataspace-components/internal/pkg/logging"
 	"github.com/afinana/go-dataspace-components/internal/pkg/telemetry"
+	_ "github.com/lib/pq"
 )
 
 func main() {
@@ -24,8 +27,29 @@ func main() {
 	}
 	_ = shutdown
 
+	// Establish database connection with connection retries
+	var db *sql.DB
+	for attempt := 1; attempt <= 15; attempt++ {
+		db, err = sql.Open("postgres", cfg.DatabaseURL)
+		if err == nil {
+			err = db.Ping()
+			if err == nil {
+				logger.Info("Successfully connected to database")
+				break
+			}
+		}
+		logger.Warn("Database connection failed, retrying in 2 seconds...", "attempt", attempt, "err", err)
+		time.Sleep(2 * time.Second)
+	}
+	if err != nil {
+		logger.Error("Failed to establish database connection after all attempts", "err", err)
+		os.Exit(1)
+	}
+	defer db.Close()
+
 	// Initialize proxy and streaming controllers
-	proxyController := ports.NewAPIProxyController(logger)
+	dbStore := ports.NewPostgresDataFlowStore(db)
+	proxyController := ports.NewAPIProxyController(logger, dbStore)
 	streamController := ports.NewFileStreamController(logger)
 
 	controllers := []dp.DataFlowController{

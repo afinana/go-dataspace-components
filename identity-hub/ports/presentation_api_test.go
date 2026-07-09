@@ -14,7 +14,7 @@ import (
 
 func TestPresentationAPIHandler_CompatibilityRoutes(t *testing.T) {
 	logger := logging.InitLogger("DEBUG")
-	handler := NewPresentationAPIHandler(logger)
+	handler := NewPresentationAPIHandler(logger, nil)
 	mux := http.NewServeMux()
 	handler.RegisterRoutes(mux)
 
@@ -73,7 +73,7 @@ func TestPresentationAPIHandler_CompatibilityRoutes(t *testing.T) {
 
 func TestPresentationAPIHandler_DCPRoutes(t *testing.T) {
 	logger := logging.InitLogger("DEBUG")
-	handler := NewPresentationAPIHandler(logger)
+	handler := NewPresentationAPIHandler(logger, nil)
 	mux := http.NewServeMux()
 	handler.RegisterRoutes(mux)
 
@@ -119,7 +119,7 @@ func TestPresentationAPIHandler_DCPRoutes(t *testing.T) {
 
 func TestPresentationAPIHandler_MethodNotAllowed(t *testing.T) {
 	logger := logging.InitLogger("DEBUG")
-	handler := NewPresentationAPIHandler(logger)
+	handler := NewPresentationAPIHandler(logger, nil)
 	mux := http.NewServeMux()
 	handler.RegisterRoutes(mux)
 
@@ -144,7 +144,7 @@ func TestPresentationAPIHandler_MethodNotAllowed(t *testing.T) {
 
 func TestPresentationAPIHandler_InvalidPayloads(t *testing.T) {
 	logger := logging.InitLogger("DEBUG")
-	handler := NewPresentationAPIHandler(logger)
+	handler := NewPresentationAPIHandler(logger, nil)
 	mux := http.NewServeMux()
 	handler.RegisterRoutes(mux)
 
