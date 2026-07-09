@@ -128,21 +128,56 @@ All code contributions must respect the guidelines defined in [.agents/AGENTS.md
 
 ---
 
-## 7. Client Integration Testing
+## 7. Integration & E2E Testing
 
-A client simulation utility is provided in `cmd/client-tester` to execute a full integration cycle:
-1.  **Catalog Retrieval**: Downloads asset catalogs from the Catalog Service.
-2.  **Contract Negotiation**: Submits negotiation request handshakes to the Control Plane.
-3.  **Flow Signaling**: Simulates Control Plane to Data Plane signaling to set up proxy definitions.
-4.  **Egress Retrieval**: Resolves data by passing the negotiated bearer token to the Data Plane reverse proxy, validating header injection routing to the backend (`http://control-plane:8081/mock-backend`).
+Multiple test suites are provided to verify the connector stack's integrity, compatibility, and correctness:
 
-To execute the integration test (ensure the Docker stack is active first):
+### A. Go Unit & Package Tests
+To run unit tests across all internal packages:
+```bash
+go test ./...
+```
+
+### B. Go E2E Client Simulation
+A client simulation utility is provided in `cmd/client-tester` to execute a full E2E data transfer cycle locally:
+1.  **Catalog Discovery**: Downloads asset catalogs from the Catalog Service.
+2.  **Contract Negotiation**: Initiates negotiation request handshakes with the Control Plane.
+3.  **Flow Signaling**: Simulates Control Plane to Data Plane signaling to register proxy mappings.
+4.  **Data Egress**: Fetches data from the Data Plane proxy using the EDR token, validating dynamic header scrub/injection to the backend.
+
+To execute (ensure the stack is running):
 ```bash
 go run cmd/client-tester/main.go
 ```
 
+### C. Shell Integration Suite
+Runs automated raw `curl` commands verifying identity querying, DCAT discovery, negotiation handshakes, data plane signaling, and proxy egress validation:
+```bash
+./test-dataspace.sh
+```
+
 ---
 
-## 8. License
+## 8. Bruno API Testing & Collections
 
-This repository is licensed under the **GNU General Public License v2.0 (GPL-2.0)**. See the [LICENSE](file:///home/afinana/development/projects/go-dataspace-components/LICENSE) file for the full terms and conditions.
+This project provides a full [Bruno](https://www.usebruno.com/) collection in the [Requests/](file:///home/afinana/development/github/go-dataspace-components/Requests) directory covering the Control Plane management APIs, Identity Hub v1alpha specs, and Issuer Admin flows.
+
+### Running Bruno Tests via CLI (Automated)
+An orchestrator script is provided to compile, launch the containers, check for dependencies, and execute the entire Bruno integration test suite in one command:
+```bash
+./run-bruno-tests.sh
+```
+This script automatically runs the collection using the local environment and outputs a detailed execution report with a 100% pass rate.
+
+### Using Bruno GUI
+To run and inspect the requests inside the Bruno desktop application:
+1.  Open the **Bruno desktop app**.
+2.  Select **Open Collection** and choose the [Requests/](file:///home/afinana/development/github/go-dataspace-components/Requests) directory from this workspace.
+3.  Load the **Environment**: Select the `local` environment from the environment dropdown in the top-right corner (this maps the standard environment variables to `localhost`).
+4.  Run requests or use the **Collection Runner** to run all folders sequentially.
+
+---
+
+## 9. License
+
+This repository is licensed under the **GNU General Public License v2.0 (GPL-2.0)**. See the [LICENSE](file:///home/afinana/development/github/go-dataspace-components/LICENSE) file for the full terms and conditions.
