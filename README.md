@@ -1,4 +1,4 @@
-# Sovereign Dataspace Connector in Go - 20260710
+# Sovereign Dataspace Connector in Go - 20260710-12:09
 
 A production-ready, idiomatic Go monorepo implementing a custom Sovereign Dataspace Connector. This implementation mirrors the architectural principles of the **Eclipse Dataspace Components (EDC)**, enforcing strict separation of control and data planes, contract negotiation state machines, standard DCAT-AP cataloging, and decentralized identity (did:web/DCP).
 
