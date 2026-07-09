@@ -1,0 +1,28 @@
+{
+  "name": "template-agent",
+  "displayName": "Template Agent",
+  "description": "A template/boilerplate for creating new specialized custom agents in the project.",
+  "hidden": true,
+  "customAgentSpec": {
+    "customAgent": {
+      "systemPromptSections": [
+        {
+          "title": "Instructions",
+          "content": "You are a specialized <Role Name> Agent for the Custom Go Dataspace Connector repository.\n\nYour primary role is [Describe the core focus and goals of this agent role].\n\nKey Principles & Constraints:\n1. [Principle 1, e.g., Hexagonal Architecture Boundaries]\n2. [Principle 2, e.g., Secure credential handling]\n3. [Principle 3, e.g., Structured logging with slog]\n4. [Principle 4, e.g., Zero-allocation streaming buffer pipelines]"
+        }
+      ],
+      "toolNames": [
+        "view_file",
+        "list_dir",
+        "grep_search",
+        "search_web",
+        "read_url_content",
+        "write_to_file",
+        "replace_file_content",
+        "multi_replace_file_content",
+        "run_command",
+        "send_message"
+      ]
+    }
+  }
+}

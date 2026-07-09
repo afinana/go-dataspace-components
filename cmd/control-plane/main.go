@@ -1,14 +1,19 @@
 package main
 
 import (
+	"context"
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"net/http"
 	"os"
+	"time"
 
+	catalogports "github.com/afinana/go-dataspace-components/catalog/ports"
 	"github.com/afinana/go-dataspace-components/internal/pkg/config"
 	"github.com/afinana/go-dataspace-components/internal/pkg/logging"
 	"github.com/afinana/go-dataspace-components/internal/pkg/telemetry"
+	_ "github.com/lib/pq"
 )
 
 func main() {
@@ -16,14 +21,47 @@ func main() {
 	logger := logging.InitLogger(cfg.LogLevel)
 	logger.Info("Starting Control Plane service...", "env", cfg.Environment)
 
-	_, shutdown, err := telemetry.InitTelemetry(cfg.ServiceName)
+	tel, shutdown, err := telemetry.InitTelemetry(cfg.ServiceName)
 	if err != nil {
 		logger.Error("Failed to initialize OpenTelemetry", "err", err)
 		os.Exit(1)
 	}
-	_ = shutdown
+	defer func() {
+		if err := shutdown(context.Background()); err != nil {
+			logger.Error("Failed to shutdown telemetry cleanly", "err", err)
+		}
+	}()
+
+	// Establish database connection with connection retries (highly resilient under container starts)
+	var db *sql.DB
+	for attempt := 1; attempt <= 15; attempt++ {
+		db, err = sql.Open("postgres", cfg.DatabaseURL)
+		if err == nil {
+			err = db.Ping()
+			if err == nil {
+				logger.Info("Successfully connected to database")
+				break
+			}
+		}
+		logger.Warn("Database connection failed, retrying in 2 seconds...", "attempt", attempt, "err", err)
+		time.Sleep(2 * time.Second)
+	}
+	if err != nil {
+		logger.Error("Failed to establish database connection after all attempts", "err", err)
+		os.Exit(1)
+	}
+	defer db.Close()
+
+	// Instantiate Postgres Catalog Store
+	catalogStore := catalogports.NewPostgresCatalogStore(db, "did:web:local-connector")
+
+	// Instantiate Catalog API Handler
+	catalogHandler := catalogports.NewCatalogAPIHandler(logger, tel.Tracer, catalogStore, catalogStore)
 
 	mux := http.NewServeMux()
+
+	// Register Catalog API routes
+	catalogHandler.RegisterRoutes(mux)
 
 	// DSP protocol endpoints matching W3C spec
 	mux.HandleFunc("POST /protocol/negotiation/request", func(w http.ResponseWriter, r *http.Request) {
@@ -62,121 +100,23 @@ func main() {
 		w.Write([]byte("OK"))
 	})
 
-	// --- EDC Management API v4 Compatibility Routes for Bruno/Postman ---
-
-	// POST /api/mgmt/v4/catalog/request -> query provider catalog
-	mux.HandleFunc("POST /api/mgmt/v4/catalog/request", func(w http.ResponseWriter, r *http.Request) {
-		logger.Info("Received management API CatalogRequest")
-		
-		response := map[string]any{
-			"@context": []string{"https://w3id.org/edc/connector/management/v2"},
-			"@type":    "Catalog",
-			"@id":      "main-catalog-01",
-			"dataset": []map[string]any{
-				{
-					"@id":         "asset-1",
-					"@type":       "dcat:Dataset",
-					"title":       "Sovereign Dataset Asset 1",
-					"description": "Standard DCAT-AP dataset registered on Alpha node",
-					"hasPolicy": []map[string]any{
-						{
-							"@id":   "policy-offer-999",
-							"@type": "odrl:Offer",
-						},
-					},
-				},
-			},
-		}
-
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusOK)
-		json.NewEncoder(w).Encode(response)
-	})
-
-	// POST /api/mgmt/v4/contractnegotiations -> initiate negotiation
-	mux.HandleFunc("POST /api/mgmt/v4/contractnegotiations", func(w http.ResponseWriter, r *http.Request) {
-		logger.Info("Received management API Initiate Negotiation")
-		
-		response := map[string]any{
-			"@context": []string{"https://w3id.org/edc/connector/management/v2"},
-			"@type":    "ContractNegotiation",
-			"@id":      "negotiation-01",
-		}
-
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusOK)
-		json.NewEncoder(w).Encode(response)
-	})
-
-	// POST /api/mgmt/v4/contractnegotiations/request -> query negotiation state
-	mux.HandleFunc("POST /api/mgmt/v4/contractnegotiations/request", func(w http.ResponseWriter, r *http.Request) {
-		logger.Info("Received management API query contract negotiations list")
-
-		response := []map[string]any{
-			{
-				"@id":                 "negotiation-01",
-				"@type":               "ContractNegotiation",
-				"state":               "FINALIZED",
-				"contractAgreementId": "contract-agreement-01",
-			},
-		}
-
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusOK)
-		json.NewEncoder(w).Encode(response)
-	})
-
-	// POST /api/mgmt/v4/transferprocesses -> initiate transfer
-	mux.HandleFunc("POST /api/mgmt/v4/transferprocesses", func(w http.ResponseWriter, r *http.Request) {
-		logger.Info("Received management API Initiate Transfer")
-
-		response := map[string]any{
-			"@context": []string{"https://w3id.org/edc/connector/management/v2"},
-			"@type":    "TransferProcess",
-			"@id":      "transfer-01",
-		}
-
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusOK)
-		json.NewEncoder(w).Encode(response)
-	})
-
-	// POST /api/mgmt/v4/transferprocesses/request -> query transfer processes state
-	mux.HandleFunc("POST /api/mgmt/v4/transferprocesses/request", func(w http.ResponseWriter, r *http.Request) {
-		logger.Info("Received management API query transfer processes list")
-
-		response := []map[string]any{
-			{
-				"@id":       "transfer-01",
-				"@type":     "TransferProcess",
-				"state":     "STARTED",
-				"assetId":   "asset-1",
-				"agreementId": "contract-agreement-01",
-			},
-		}
-
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusOK)
-		json.NewEncoder(w).Encode(response)
-	})
-
 	mux.HandleFunc("/mock-backend/", func(w http.ResponseWriter, r *http.Request) {
-		logger.Info("Received mock backend request", "method", r.Method, "path", r.URL.Path)
+		logger.Info("Received mock backend request", "path", r.URL.Path, "headers", r.Header)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
 		
-		headersMap := make(map[string]string)
+		headers := make(map[string]string)
 		for k, v := range r.Header {
 			if len(v) > 0 {
-				headersMap[k] = v[0]
+				headers[k] = v[0]
 			}
 		}
-
+		
 		response := map[string]any{
+			"headers": headers,
+			"origin":  r.RemoteAddr,
 			"url":     r.URL.String(),
-			"headers": headersMap,
 		}
-
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusOK)
 		json.NewEncoder(w).Encode(response)
 	})
 

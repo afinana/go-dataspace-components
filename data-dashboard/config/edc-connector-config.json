@@ -3,7 +3,7 @@
     "id": "local-connector-01",
     "name": "Sovereign Node Alpha (Local)",
     "controlPlaneUrl": "http://control-plane:8081",
-    "catalogUrl": "http://catalog:8083",
+    "catalogUrl": "http://control-plane:8081",
     "dataPlaneUrl": "http://data-plane:8082",
     "identityHubUrl": "http://identity-hub:8080",
     "authKey": "provider-admin-secret-key-12345"

@@ -26,7 +26,7 @@ func main() {
 
 	// 1. Query Provider Catalog
 	fmt.Println(">>> [1/4] Querying Catalog from Provider Connector...")
-	catalogURL := "http://localhost:8083/catalog?requester=did:web:consumer-domain"
+	catalogURL := "http://localhost:8081/catalog?requester=did:web:consumer-domain"
 	resp, err := client.Get(catalogURL)
 	if err != nil {
 		fmt.Printf("❌ Failed to query catalog: %v\n", err)

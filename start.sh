@@ -3,7 +3,7 @@
 set -e
 
 # Target workspace directory context
-PROJECT_DIR="/home/afinana/development/projects/go-dataspace-components"
+PROJECT_DIR="/home/afinana/development/github/go-dataspace-components"
 cd "$PROJECT_DIR"
 
 echo "================================================================="
@@ -40,9 +40,8 @@ echo ""
 echo "================================================================="
 echo "   Connector Stack endpoints are active:                         "
 echo "   - Identity Hub:   http://localhost:8080                       "
-echo "   - Control Plane:  http://localhost:8081                       "
+echo "   - Control Plane:  http://localhost:8081 (incl. DCAT Catalog)   "
 echo "   - Data Plane:     http://localhost:8082                       "
-echo "   - Catalog:        http://localhost:8083                       "
 echo "   - Data Dashboard: http://localhost:8084                       "
 echo "   - PostgreSQL:     localhost:5432                              "
 echo "================================================================="

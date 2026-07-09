@@ -50,8 +50,10 @@ services:
       - LOG_LEVEL=DEBUG
       - ENVIRONMENT=development
       - SERVICE_NAME=control-plane
+      - DATABASE_URL=postgres://postgres:postgres@postgres:5432/dataspace_identity?sslmode=disable
     depends_on:
       - identity-hub
+      - postgres
 
   data-plane:
     build:
@@ -68,23 +70,6 @@ services:
     depends_on:
       - control-plane
 
-  catalog:
-    build:
-      context: .
-      dockerfile: docker/catalog.Dockerfile
-    container_name: dataspace-catalog
-    ports:
-      - "8083:8083"
-    environment:
-      - PORT=8083
-      - LOG_LEVEL=DEBUG
-      - ENVIRONMENT=development
-      - SERVICE_NAME=catalog
-      - DATABASE_URL=postgres://postgres:postgres@postgres:5432/dataspace_identity?sslmode=disable
-    depends_on:
-      postgres:
-        condition: service_started
-
   data-dashboard:
     build:
       context: .
@@ -100,7 +85,6 @@ services:
     depends_on:
       - control-plane
       - data-plane
-      - catalog
       - identity-hub
 
 volumes:
