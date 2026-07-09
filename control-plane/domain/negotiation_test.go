@@ -6,10 +6,11 @@ import (
 
 func TestContractNegotiation_Transition(t *testing.T) {
 	tests := []struct {
-		name      string
-		initial   NegotiationState
-		target    NegotiationState
-		expectErr bool
+		name        string
+		initial     NegotiationState
+		target      NegotiationState
+		errorDetail string
+		expectErr   bool
 	}{
 		{
 			name:      "Requested to Agreed - Valid",
@@ -18,10 +19,18 @@ func TestContractNegotiation_Transition(t *testing.T) {
 			expectErr: false,
 		},
 		{
-			name:      "Requested to Failed - Valid",
-			initial:   StateRequested,
-			target:    StateFailed,
-			expectErr: false,
+			name:        "Requested to Terminated - Valid with ErrorDetail",
+			initial:     StateRequested,
+			target:      StateTerminated,
+			errorDetail: "some error message",
+			expectErr:   false,
+		},
+		{
+			name:        "Requested to Terminated - Invalid without ErrorDetail",
+			initial:     StateRequested,
+			target:      StateTerminated,
+			errorDetail: "",
+			expectErr:   true,
 		},
 		{
 			name:      "Agreed to Verified - Valid",
@@ -48,8 +57,8 @@ func TestContractNegotiation_Transition(t *testing.T) {
 			expectErr: true,
 		},
 		{
-			name:      "Failed to Finalized - Invalid",
-			initial:   StateFailed,
+			name:      "Terminated to Finalized - Invalid",
+			initial:   StateTerminated,
 			target:    StateFinalized,
 			expectErr: true,
 		},
@@ -58,7 +67,8 @@ func TestContractNegotiation_Transition(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			cn := &ContractNegotiation{
-				State: tt.initial,
+				State:       tt.initial,
+				ErrorDetail: tt.errorDetail,
 			}
 			err := cn.Transition(tt.target)
 			if (err != nil) != tt.expectErr {

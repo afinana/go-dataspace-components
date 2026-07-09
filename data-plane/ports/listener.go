@@ -25,8 +25,13 @@ func NewSignalingListener(logger *slog.Logger, controllers []dp.DataFlowControll
 
 // RegisterRoutes registers signaling routes onto a standard http.ServeMux or chi router.
 func (l *SignalingListener) RegisterRoutes(mux *http.ServeMux) {
-	mux.HandleFunc("/signaling/start", l.handleStart)
-	mux.HandleFunc("/signaling/terminate", l.handleTerminate)
+	// Standard EDC Data Plane Signaling Protocol endpoints
+	mux.HandleFunc("POST /v1/dataflows/start", l.handleStart)
+	mux.HandleFunc("POST /v1/dataflows/{id}/terminate", l.handleTerminate)
+
+	// Backward compatibility endpoints
+	mux.HandleFunc("POST /signaling/start", l.handleStart)
+	mux.HandleFunc("POST /signaling/terminate", l.handleTerminate)
 }
 
 func (l *SignalingListener) handleStart(w http.ResponseWriter, r *http.Request) {
@@ -86,13 +91,21 @@ func (l *SignalingListener) handleTerminate(w http.ResponseWriter, r *http.Reque
 		Reason string `json:"reason"`
 	}
 
-	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
-		l.logger.Error("Failed to decode terminate request", "err", err)
-		http.Error(w, "Bad Request", http.StatusBadRequest)
+	// Read and decode the body if present (errors ignored for path-based parameter fallback)
+	_ = json.NewDecoder(r.Body).Decode(&request)
+
+	id := r.PathValue("id")
+	if id == "" {
+		id = request.ID
+	}
+
+	if id == "" {
+		l.logger.Error("Failed to extract data flow ID from request path or body")
+		http.Error(w, "Bad Request: missing flow ID", http.StatusBadRequest)
 		return
 	}
 
-	l.logger.Info("Received signaling TERMINATE command from Control Plane", "transferId", request.ID, "reason", request.Reason)
+	l.logger.Info("Received signaling TERMINATE command from Control Plane", "transferId", id, "reason", request.Reason)
 
 	// In a real data plane, this signals active workers/pipes to close contexts.
 	// For this scaffold, we acknowledge the termination signal successfully.

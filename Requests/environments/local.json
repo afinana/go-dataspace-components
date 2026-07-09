@@ -1,0 +1,19 @@
+{
+  "name": "local",
+  "variables": [
+    { "name": "CONSUMER_CP", "value": "http://localhost:8081", "enabled": true },
+    { "name": "PROVIDER_CP", "value": "http://localhost:8081", "enabled": true },
+    { "name": "CONSUMER_DP", "value": "http://localhost:8082", "enabled": true },
+    { "name": "PROVIDER_DSP", "value": "http://localhost:8081", "enabled": true },
+    { "name": "PROVIDER_PUBLIC_URL", "value": "http://localhost:8082", "enabled": true },
+    { "name": "PROVIDER_ID", "value": "did:web:provider", "enabled": true },
+    { "name": "CS_URL", "value": "http://localhost:8080", "enabled": true },
+    { "name": "ISSUER_ADMIN_URL", "value": "http://localhost:8080", "enabled": true },
+    { "name": "ISSUER_DID", "value": "did:web:issuer-authority", "enabled": true },
+    { "name": "PARTICIPANT_CONTEXT_ID", "value": "consumer-participant", "enabled": true },
+    { "name": "ISSUER_CONTEXT_ID", "value": "issuer", "enabled": true },
+    { "name": "flowId", "value": "flow-process-test", "enabled": true },
+    { "name": "POLICY_ID_ASSET_1", "value": "policy-01", "enabled": true },
+    { "name": "CONTRACT_AGREEMENT_ID", "value": "agreement-test-99", "enabled": true }
+  ]
+}

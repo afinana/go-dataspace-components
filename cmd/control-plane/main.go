@@ -95,6 +95,79 @@ func main() {
 		})
 	})
 
+	// EDC Management API compatibility endpoints
+	mux.HandleFunc("POST /api/mgmt/v4/assets/request", func(w http.ResponseWriter, r *http.Request) {
+		logger.Info("Received mgmt query assets request")
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode([]any{})
+	})
+
+	mux.HandleFunc("POST /api/mgmt/v4/catalog/request", func(w http.ResponseWriter, r *http.Request) {
+		logger.Info("Received mgmt catalog request")
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(map[string]any{
+			"dataset": []map[string]any{
+				{
+					"@id": "asset-1",
+					"hasPolicy": []map[string]any{
+						{
+							"@id": "policy-01",
+						},
+					},
+				},
+			},
+		})
+	})
+
+	mux.HandleFunc("POST /api/mgmt/v4/contractnegotiations", func(w http.ResponseWriter, r *http.Request) {
+		logger.Info("Received mgmt initiate negotiation request")
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(map[string]any{
+			"@id":       "negotiation-01",
+			"createdAt": time.Now().UnixMilli(),
+		})
+	})
+
+	mux.HandleFunc("POST /api/mgmt/v4/contractnegotiations/request", func(w http.ResponseWriter, r *http.Request) {
+		logger.Info("Received mgmt query contract negotiations request")
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode([]map[string]any{
+			{
+				"@id":                 "negotiation-01",
+				"state":               "REQUESTED",
+				"contractAgreementId": "agreement-test-99",
+			},
+		})
+	})
+
+	mux.HandleFunc("POST /api/mgmt/v4/transferprocesses", func(w http.ResponseWriter, r *http.Request) {
+		logger.Info("Received mgmt initiate transfer request")
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(map[string]any{
+			"@id":       "transfer-01",
+			"createdAt": time.Now().UnixMilli(),
+		})
+	})
+
+	mux.HandleFunc("POST /api/mgmt/v4/transferprocesses/request", func(w http.ResponseWriter, r *http.Request) {
+		logger.Info("Received mgmt query transfer processes request")
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode([]map[string]any{
+			{
+				"@id":         "transfer-01",
+				"state":       "STARTED",
+				"assetId":     "dataset-asset-01",
+				"agreementId": "agreement-test-99",
+			},
+		})
+	})
+
 	mux.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte("OK"))

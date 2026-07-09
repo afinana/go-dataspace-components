@@ -41,6 +41,12 @@ func main() {
 	// Expose proxy endpoint path for consumers to request proxied data assets
 	mux.Handle("/public/", proxyController)
 
+	// Expose additional REST proxy management APIs (compat with Bruno collections)
+	mux.HandleFunc("GET /api/proxy/flows", proxyController.HandleFlowsList)
+	mux.HandleFunc("GET /api/proxy/flows/{flowId}", proxyController.HandleFlowsDetail)
+	mux.Handle("/api/proxy/flows/{flowId}/data", proxyController)
+	mux.Handle("/api/proxy/flows/{flowId}/data/", proxyController)
+
 	// Health check route
 	mux.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)

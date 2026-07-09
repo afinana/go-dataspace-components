@@ -74,7 +74,7 @@ func main() {
 
 	// 3. Initiate Transfer Signaling with Data Plane (CP -> DP Call simulation)
 	fmt.Println(">>> [3/4] Registering Data Flow via Data Plane Signaling Listener...")
-	signalingURL := "http://localhost:8082/signaling/start"
+	signalingURL := "http://localhost:8082/v1/dataflows/start"
 	
 	// Create signaling request containing HTTP reverse proxy mapping
 	flowReq := dp.DataFlowRequest{

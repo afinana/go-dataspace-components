@@ -80,7 +80,7 @@ curl -s -X POST -H "Content-Type: application/json" -d '{
   "properties": {
     "auth_token": "consumer-test-token"
   }
-}' http://localhost:8082/signaling/start | grep -q "success\":true"
+}' http://localhost:8082/v1/dataflows/start | grep -q "success\":true"
 check_status
 echo ""
 

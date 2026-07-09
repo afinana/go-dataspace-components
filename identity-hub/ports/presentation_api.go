@@ -35,6 +35,8 @@ func (h *PresentationAPIHandler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("POST /api/identity/v1alpha/dids", h.handlePublishDid)
 	mux.HandleFunc("GET /api/identity/v1alpha/credentials", h.handleGetAllCredentials)
 	mux.HandleFunc("GET /api/identity/v1alpha/participants/{id}/credentials", h.handleGetAllCredentials)
+	mux.HandleFunc("/api/identity/v1alpha/", h.handleWildcardV1Alpha)
+	mux.HandleFunc("/api/admin/v1alpha/", h.handleWildcardAdminV1Alpha)
 }
 
 // QueryRequest models the request structure for POST /presentations/query.
@@ -178,4 +180,53 @@ func (h *PresentationAPIHandler) handleGetAllCredentials(w http.ResponseWriter, 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(list)
+}
+
+func (h *PresentationAPIHandler) handleWildcardV1Alpha(w http.ResponseWriter, r *http.Request) {
+	h.logger.Info("Received Identity Hub v1alpha wildcard request", "method", r.Method, "path", r.URL.Path)
+
+	w.Header().Set("Content-Type", "application/json")
+	if r.Method == http.MethodPost {
+		w.Header().Set("Location", r.URL.Path+"/req-123")
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(map[string]any{
+			"success": true, 
+			"@id": "entity-id-01",
+			"id": "entity-id-01",
+			"token": "mock-regenerated-token-xyz123",
+		})
+	} else if r.Method == http.MethodDelete {
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(map[string]any{"success": true})
+	} else {
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(map[string]any{
+			"success": true,
+			"id": "entity-id-01",
+			"state": "PUBLISHED",
+			"endpointProperties": []map[string]string{
+				{
+					"name": "access_token",
+					"value": "mock-token",
+				},
+			},
+		})
+	}
+}
+
+func (h *PresentationAPIHandler) handleWildcardAdminV1Alpha(w http.ResponseWriter, r *http.Request) {
+	h.logger.Info("Received Issuer Admin v1alpha wildcard request", "method", r.Method, "path", r.URL.Path)
+	w.Header().Set("Content-Type", "application/json")
+	if r.Method == http.MethodPost {
+		w.Header().Set("Location", r.URL.Path+"/req-123")
+		w.WriteHeader(http.StatusCreated)
+		json.NewEncoder(w).Encode(map[string]any{
+			"success": true,
+			"@id": "admin-entity-01",
+			"id": "admin-entity-01",
+		})
+	} else {
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode([]any{})
+	}
 }

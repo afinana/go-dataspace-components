@@ -16,7 +16,7 @@ const (
 	StateTransferStarting
 	StateTransferStarted
 	StateTransferCompleted
-	StateTransferFailed
+	StateTransferTerminated
 )
 
 func (s TransferState) String() string {
@@ -31,8 +31,8 @@ func (s TransferState) String() string {
 		return "STARTED"
 	case StateTransferCompleted:
 		return "COMPLETED"
-	case StateTransferFailed:
-		return "FAILED"
+	case StateTransferTerminated:
+		return "TERMINATED"
 	default:
 		return "UNKNOWN"
 	}
@@ -85,21 +85,25 @@ func (tp *TransferProcess) Transition(to TransferState) error {
 	valid := false
 	switch tp.State {
 	case StateTransferInitial:
-		valid = (to == StateTransferRequested || to == StateTransferStarting || to == StateTransferFailed)
+		valid = (to == StateTransferRequested || to == StateTransferStarting || to == StateTransferTerminated)
 	case StateTransferRequested:
-		valid = (to == StateTransferStarting || to == StateTransferFailed)
+		valid = (to == StateTransferStarting || to == StateTransferTerminated)
 	case StateTransferStarting:
-		valid = (to == StateTransferStarted || to == StateTransferFailed)
+		valid = (to == StateTransferStarted || to == StateTransferTerminated)
 	case StateTransferStarted:
-		valid = (to == StateTransferCompleted || to == StateTransferFailed)
+		valid = (to == StateTransferCompleted || to == StateTransferTerminated)
 	case StateTransferCompleted:
 		valid = false // Terminal state
-	case StateTransferFailed:
+	case StateTransferTerminated:
 		valid = false // Terminal state
 	}
 
 	if !valid {
 		return fmt.Errorf("%w: cannot transition from %s to %s", ErrInvalidTransferTransition, tp.State, to)
+	}
+
+	if to == StateTransferTerminated && tp.ErrorDetail == "" {
+		return fmt.Errorf("%w: cannot transition to TERMINATED state without ErrorDetail being populated", ErrInvalidTransferTransition)
 	}
 
 	tp.State = to

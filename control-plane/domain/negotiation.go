@@ -15,7 +15,7 @@ const (
 	StateAgreed
 	StateVerified
 	StateFinalized
-	StateFailed
+	StateTerminated
 )
 
 func (s NegotiationState) String() string {
@@ -28,8 +28,8 @@ func (s NegotiationState) String() string {
 		return "VERIFIED"
 	case StateFinalized:
 		return "FINALIZED"
-	case StateFailed:
-		return "FAILED"
+	case StateTerminated:
+		return "TERMINATED"
 	default:
 		return "UNKNOWN"
 	}
@@ -101,19 +101,23 @@ func (cn *ContractNegotiation) Transition(to NegotiationState) error {
 	valid := false
 	switch cn.State {
 	case StateRequested:
-		valid = (to == StateAgreed || to == StateFailed)
+		valid = (to == StateAgreed || to == StateTerminated)
 	case StateAgreed:
-		valid = (to == StateVerified || to == StateFinalized || to == StateFailed)
+		valid = (to == StateVerified || to == StateFinalized || to == StateTerminated)
 	case StateVerified:
-		valid = (to == StateFinalized || to == StateFailed)
+		valid = (to == StateFinalized || to == StateTerminated)
 	case StateFinalized:
 		valid = false // Terminal state
-	case StateFailed:
+	case StateTerminated:
 		valid = false // Terminal state
 	}
 
 	if !valid {
 		return fmt.Errorf("%w: cannot transition from %s to %s", ErrInvalidStateTransition, cn.State, to)
+	}
+
+	if to == StateTerminated && cn.ErrorDetail == "" {
+		return fmt.Errorf("%w: cannot transition to TERMINATED state without ErrorDetail being populated", ErrInvalidStateTransition)
 	}
 
 	cn.State = to
