@@ -12,9 +12,9 @@ jobs:
     name: Build & Push Service Images
     runs-on: ubuntu-latest
     env:
-      REGISTRY_USER: ${{ secrets.DOCKER_USERNAME || 'local' }}
-      DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-      DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+      REGISTRY_USER: ${{ secrets.DOCKERHUB_USERNAME }}
+      DOCKER_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+      DOCKER_PASSWORD: ${{ secrets.DOCKERHUB_PASSWORD }}
     strategy:
       fail-fast: false
       matrix:
