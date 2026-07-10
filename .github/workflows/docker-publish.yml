@@ -22,7 +22,6 @@ jobs:
           - identity-hub
           - control-plane
           - data-plane
-          - catalog
           - data-dashboard
     
     steps:
