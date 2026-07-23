@@ -9,9 +9,11 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/afinana/go-dataspace-components/catalog/domain"
+	"github.com/afinana/go-dataspace-components/internal/pkg/kvstore"
 	"go.opentelemetry.io/otel/trace/noop"
 )
 
@@ -199,3 +201,48 @@ func TestCatalogAPIHandler(t *testing.T) {
 		t.Errorf("expected status 404 after deletion, got %d", w.Code)
 	}
 }
+
+func TestPostgresCatalogStoreWithKVCache(t *testing.T) {
+	db, mock, err := sqlmock.New()
+	if err != nil {
+		t.Fatalf("failed to create sqlmock: %v", err)
+	}
+	defer db.Close()
+
+	kvCache := kvstore.NewMemoryKVStore(0)
+	defer kvCache.Close()
+
+	store := NewPostgresCatalogStore(db, "did:web:test").WithCache(kvCache, 1*time.Hour)
+	ctx := context.Background()
+
+	ds := &domain.Dataset{
+		ID:    "ds-cache-1",
+		Title: "Cached Dataset",
+	}
+
+	payloadBytes, _ := json.Marshal(ds)
+
+	// Mock DB insert on RegisterDataset
+	mock.ExpectExec("INSERT INTO datasets").
+		WithArgs(ds.ID, payloadBytes).
+		WillReturnResult(sqlmock.NewResult(1, 1))
+
+	if err := store.RegisterDataset(ctx, ds); err != nil {
+		t.Fatalf("failed to register dataset: %v", err)
+	}
+
+	// First GetDataset should hit KV cache directly WITHOUT querying DB!
+	fetched, err := store.GetDataset(ctx, "ds-cache-1")
+	if err != nil {
+		t.Fatalf("failed to get dataset from cache: %v", err)
+	}
+	if fetched.Title != "Cached Dataset" {
+		t.Errorf("expected 'Cached Dataset', got '%s'", fetched.Title)
+	}
+
+	// Ensure DB query expectations are met (only insert was performed, no SELECT!)
+	if err := mock.ExpectationsWereMet(); err != nil {
+		t.Errorf("unfulfilled expectations: %s", err)
+	}
+}
+

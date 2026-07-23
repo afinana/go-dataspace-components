@@ -13,6 +13,7 @@ import (
 	cpdomain "github.com/afinana/go-dataspace-components/control-plane/domain"
 	controlplaneports "github.com/afinana/go-dataspace-components/control-plane/ports"
 	"github.com/afinana/go-dataspace-components/internal/pkg/config"
+	"github.com/afinana/go-dataspace-components/internal/pkg/kvstore"
 	"github.com/afinana/go-dataspace-components/internal/pkg/logging"
 	"github.com/afinana/go-dataspace-components/internal/pkg/telemetry"
 	_ "github.com/lib/pq"
@@ -54,8 +55,13 @@ func main() {
 	}
 	defer db.Close()
 
-	// Instantiate Postgres Catalog Store
-	catalogStore := catalogports.NewPostgresCatalogStore(db, "did:web:local-connector")
+	// Instantiate KV Store for L1 cache
+	kvCache := kvstore.NewMemoryKVStore(1 * time.Minute)
+	defer kvCache.Close()
+
+	// Instantiate Postgres Catalog Store with KV caching
+	catalogStore := catalogports.NewPostgresCatalogStore(db, "did:web:local-connector").WithCache(kvCache, 5*time.Minute)
+
 
 	// Instantiate control plane database stores
 	negotiationStore := controlplaneports.NewPostgresNegotiationStore(db)

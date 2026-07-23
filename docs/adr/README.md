@@ -9,4 +9,6 @@ This directory contains the Architecture Decision Records (ADRs) for the Soverei
 *   [ADR-0003: SSR Go HTML Template Data Dashboard](file:///home/afinana/development/github/go-dataspace-components/docs/adr/0003-ssr-go-html-template-data-dashboard.md)
 *   [ADR-0004: Constant Memory Data Plane Egress Streaming](file:///home/afinana/development/github/go-dataspace-components/docs/adr/0004-constant-memory-data-plane-egress-streaming.md)
 *   [ADR-0005: Modular Terraform Architecture and Environment Configuration](file:///home/afinana/development/github/go-dataspace-components/docs/adr/0005-modular-terraform-with-env-variables.md)
+*   [ADR-0006: High-Performance L1 Key-Value Store Caching Layer](file:///home/afinana/development/github/go-dataspace-components/docs/adr/0006-l1-kv-store-caching-layer.md)
+
 
