@@ -1,0 +1,12 @@
+# Go binaries
+bin/
+*.exe
+*.test
+*.prof
+
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+.terraform.lock.hcl
+.env
