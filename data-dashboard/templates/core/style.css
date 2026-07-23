@@ -400,3 +400,117 @@ body {
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
 }
+
+/* Health Probes Styling */
+.health-probes {
+    display: flex;
+    gap: 16px;
+    background-color: rgba(0, 0, 0, 0.2);
+    padding: 6px 16px;
+    border-radius: 9999px;
+    border: 1px solid var(--border-color);
+}
+
+.probe-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-muted);
+}
+
+.probe-lbl {
+    font-family: monospace;
+}
+
+.probe-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.status-up {
+    background-color: var(--status-success);
+    box-shadow: 0 0 8px var(--status-success);
+}
+
+.status-down {
+    background-color: var(--status-danger);
+    box-shadow: 0 0 8px var(--status-danger);
+}
+
+.status-unknown {
+    background-color: var(--text-muted);
+    box-shadow: none;
+}
+
+/* Handshake Timeline Wizard */
+.timeline {
+    position: relative;
+    padding-left: 32px;
+    margin: 20px 0;
+}
+
+.timeline::before {
+    content: '';
+    position: absolute;
+    left: 15px;
+    top: 8px;
+    bottom: 8px;
+    width: 2px;
+    background-color: var(--border-color);
+}
+
+.timeline-step {
+    position: relative;
+    margin-bottom: 24px;
+}
+
+.timeline-step:last-child {
+    margin-bottom: 0;
+}
+
+.timeline-marker {
+    position: absolute;
+    left: -24px;
+    top: 4px;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background-color: var(--bg-base);
+    border: 2px solid var(--border-color);
+    transition: all 0.3s ease;
+}
+
+.timeline-step.active .timeline-marker {
+    border-color: var(--accent-color);
+    background-color: var(--accent-color);
+    box-shadow: 0 0 10px var(--accent-color);
+}
+
+.timeline-step.completed .timeline-marker {
+    border-color: var(--status-success);
+    background-color: var(--status-success);
+    box-shadow: 0 0 10px var(--status-success);
+}
+
+.timeline-content {
+    display: flex;
+    flex-direction: column;
+}
+
+.timeline-title {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.timeline-desc {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-top: 4px;
+}
+

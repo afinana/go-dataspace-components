@@ -38,6 +38,26 @@
                     <h1 class="page-title">{{.ActiveTab}}</h1>
                 </div>
                 <div class="header-right">
+                    <!-- Health Probes -->
+                    <div class="health-probes">
+                        <div class="probe-item" title="Control Plane Status">
+                            <span class="probe-dot status-unknown" id="probe-cp"></span>
+                            <span class="probe-lbl">CP</span>
+                        </div>
+                        <div class="probe-item" title="Data Plane Status">
+                            <span class="probe-dot status-unknown" id="probe-dp"></span>
+                            <span class="probe-lbl">DP</span>
+                        </div>
+                        <div class="probe-item" title="Identity Hub Status">
+                            <span class="probe-dot status-unknown" id="probe-id"></span>
+                            <span class="probe-lbl">ID</span>
+                        </div>
+                        <div class="probe-item" title="Catalog Status">
+                            <span class="probe-dot status-unknown" id="probe-cat"></span>
+                            <span class="probe-lbl">CAT</span>
+                        </div>
+                    </div>
+
                     <!-- Connector Switcher -->
                     <div class="connector-select-wrapper">
                         <label for="connector-select" class="select-label">Active Node:</label>
@@ -89,6 +109,41 @@
                 document.body.classList.replace('dark-theme', 'light-theme');
             }
         })();
+
+        // Query connector status endpoints dynamically
+        async function updateHealthStatus() {
+            try {
+                const res = await fetch('/api/connector/health');
+                if (!res.ok) throw new Error('API down');
+                const data = await res.json();
+                
+                updateDot('probe-cp', data.controlPlane);
+                updateDot('probe-dp', data.dataPlane);
+                updateDot('probe-id', data.identityHub);
+                updateDot('probe-cat', data.catalog);
+            } catch (err) {
+                console.error("Health probe query failed:", err);
+                ['probe-cp', 'probe-dp', 'probe-id', 'probe-cat'].forEach(id => {
+                    updateDot(id, 'DOWN');
+                });
+            }
+        }
+
+        function updateDot(id, status) {
+            const el = document.getElementById(id);
+            if (!el) return;
+            el.className = 'probe-dot';
+            if (status === 'UP') {
+                el.classList.add('status-up');
+            } else if (status === 'DOWN') {
+                el.classList.add('status-down');
+            } else {
+                el.classList.add('status-unknown');
+            }
+        }
+
+        updateHealthStatus();
+        setInterval(updateHealthStatus, 15000); // Probe every 15 seconds
     </script>
 </body>
 </html>

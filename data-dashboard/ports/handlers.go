@@ -1,10 +1,12 @@
 package ports
 
 import (
+	"encoding/json"
 	"html/template"
 	"log/slog"
 	"net/http"
 	"path/filepath"
+	"time"
 
 	"github.com/afinana/go-dataspace-components/data-dashboard/core"
 )
@@ -42,6 +44,11 @@ func (s *DashboardServer) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("GET /catalog", s.handleCatalog)
 	mux.HandleFunc("GET /policies", s.handlePolicies)
 	mux.HandleFunc("GET /transfer", s.handleTransfer)
+
+	// API endpoints for dynamic GUI operations
+	mux.HandleFunc("GET /api/connector/health", s.handleConnectorHealth)
+	mux.HandleFunc("POST /api/negotiate/start", s.handleInitiateNegotiation)
+	mux.HandleFunc("POST /api/transfer/start", s.handleInitiateTransfer)
 
 	// Serve CSS styling statically
 	mux.HandleFunc("GET /styles.css", func(w http.ResponseWriter, r *http.Request) {
@@ -196,4 +203,93 @@ func (s *DashboardServer) handleTransfer(w http.ResponseWriter, r *http.Request)
 	}
 
 	s.renderView(w, r, "Negotiations & Transfers", "transfer/index.html", data)
+}
+
+func (s *DashboardServer) handleConnectorHealth(w http.ResponseWriter, r *http.Request) {
+	if s.client == nil || s.client.Config() == nil {
+		http.Error(w, "No active connector context", http.StatusBadRequest)
+		return
+	}
+
+	ctx := r.Context()
+	probe := func(url string) string {
+		client := &http.Client{Timeout: 1 * time.Second}
+		req, err := http.NewRequestWithContext(ctx, http.MethodGet, url+"/health", nil)
+		if err != nil {
+			return "DOWN"
+		}
+		resp, err := client.Do(req)
+		if err != nil {
+			return "DOWN"
+		}
+		defer resp.Body.Close()
+		if resp.StatusCode == http.StatusOK {
+			return "UP"
+		}
+		return "DOWN"
+	}
+
+	cfg := s.client.Config()
+	status := map[string]string{
+		"controlPlane": probe(cfg.ControlPlaneURL),
+		"dataPlane":    probe(cfg.DataPlaneURL),
+		"identityHub":  probe(cfg.IdentityHubURL),
+		"catalog":      probe(cfg.CatalogURL),
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(status)
+}
+
+func (s *DashboardServer) handleInitiateNegotiation(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	var payload struct {
+		CounterPartyAddress string `json:"counterPartyAddress"`
+		AssetID             string `json:"assetId"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
+		http.Error(w, "Bad Request", http.StatusBadRequest)
+		return
+	}
+
+	negID, err := s.client.InitiateNegotiation(r.Context(), payload.CounterPartyAddress, payload.AssetID)
+	if err != nil {
+		s.logger.Error("Failed to initiate negotiation", "err", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]string{"id": negID})
+}
+
+func (s *DashboardServer) handleInitiateTransfer(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	var payload struct {
+		ContractID          string `json:"contractId"`
+		AssetID             string `json:"assetId"`
+		CounterPartyAddress string `json:"counterPartyAddress"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
+		http.Error(w, "Bad Request", http.StatusBadRequest)
+		return
+	}
+
+	transferID, err := s.client.InitiateTransfer(r.Context(), payload.ContractID, payload.AssetID, payload.CounterPartyAddress)
+	if err != nil {
+		s.logger.Error("Failed to initiate transfer", "err", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]string{"id": transferID})
 }

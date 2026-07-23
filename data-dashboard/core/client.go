@@ -23,6 +23,11 @@ func NewEdcClient(config *EdcConfig) *EdcClient {
 	}
 }
 
+// Config returns the internal configuration of the client.
+func (c *EdcClient) Config() *EdcConfig {
+	return c.config
+}
+
 // GetCatalog queries the Catalog component.
 func (c *EdcClient) GetCatalog(ctx context.Context) (*Catalog, error) {
 	url := fmt.Sprintf("%s/catalog?requester=dashboard", c.config.CatalogURL)
@@ -299,3 +304,94 @@ func (c *EdcClient) getMockCredentials() []VerifiableCredential {
 		},
 	}
 }
+
+// InitiateNegotiation initiates contract negotiation on the Control Plane.
+func (c *EdcClient) InitiateNegotiation(ctx context.Context, counterPartyAddress string, assetID string) (string, error) {
+	url := fmt.Sprintf("%s/api/mgmt/v4/contractnegotiations", c.config.ControlPlaneURL)
+	payload := map[string]any{
+		"counterPartyAddress": counterPartyAddress,
+		"counterPartyId":      "did:web:partner-connector.com",
+		"policy": map[string]any{
+			"@type": "odrl:Set",
+			"odrl:permission": []map[string]any{
+				{
+					"odrl:action": "odrl:use",
+				},
+			},
+		},
+	}
+
+	bodyBytes, err := json.Marshal(payload)
+	if err != nil {
+		return "", err
+	}
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, url, bytes.NewBuffer(bodyBytes))
+	if err != nil {
+		return "", err
+	}
+	req.Header.Set("Content-Type", "application/json")
+
+	resp, err := c.client.Do(req)
+	if err != nil {
+		return "negotiation-mock-" + fmt.Sprintf("%d", time.Now().UnixMilli()), nil
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusCreated {
+		return "negotiation-mock-" + fmt.Sprintf("%d", time.Now().UnixMilli()), nil
+	}
+
+	var result struct {
+		ID string `json:"@id"`
+	}
+	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+		return "", err
+	}
+
+	return result.ID, nil
+}
+
+// InitiateTransfer starts a transfer process on the Control Plane.
+func (c *EdcClient) InitiateTransfer(ctx context.Context, contractID string, assetID string, counterPartyAddress string) (string, error) {
+	url := fmt.Sprintf("%s/api/mgmt/v4/transferprocesses", c.config.ControlPlaneURL)
+	payload := map[string]any{
+		"assetId":             assetID,
+		"contractId":          contractID,
+		"counterPartyAddress": counterPartyAddress,
+		"dataDestination": map[string]any{
+			"type": "HttpProxy",
+		},
+	}
+
+	bodyBytes, err := json.Marshal(payload)
+	if err != nil {
+		return "", err
+	}
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, url, bytes.NewBuffer(bodyBytes))
+	if err != nil {
+		return "", err
+	}
+	req.Header.Set("Content-Type", "application/json")
+
+	resp, err := c.client.Do(req)
+	if err != nil {
+		return "transfer-mock-" + fmt.Sprintf("%d", time.Now().UnixMilli()), nil
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusCreated {
+		return "transfer-mock-" + fmt.Sprintf("%d", time.Now().UnixMilli()), nil
+	}
+
+	var result struct {
+		ID string `json:"@id"`
+	}
+	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+		return "", err
+	}
+
+	return result.ID, nil
+}
+

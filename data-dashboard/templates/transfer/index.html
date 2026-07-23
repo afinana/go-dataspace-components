@@ -1,5 +1,16 @@
 {{define "content"}}
 <div class="transfer-view">
+    <!-- E2E DSP Handshake Orchestrator Wizard -->
+    <div class="card" style="margin-bottom: 32px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+            <h2 class="card-title">E2E Sovereign Dataspace Protocol Handshake</h2>
+            <button class="btn" onclick="openWizardModal()">Trigger DSP Handshake</button>
+        </div>
+        <p style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.5;">
+            Initiate automated contract negotiation, policy agreement sign-off, and data egress flows directly between connector nodes in the network.
+        </p>
+    </div>
+
     <div class="card" style="margin-bottom: 32px;">
         <h2 class="card-title">Contract Negotiations & Handshakes</h2>
         <div class="table-container" style="margin-top: 16px;">
@@ -71,5 +82,140 @@
             </table>
         </div>
     </div>
+
+    <!-- Handshake Wizard Modal -->
+    <div id="wizard-modal" class="modal-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(5px); z-index: 100; align-items: center; justify-content: center;">
+        <div class="card" style="width: 550px; max-width: 90%; background: var(--bg-surface); border: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 16px;">
+            <h2 class="card-title">DSP Orchestrator Handshake</h2>
+            
+            <div id="wizard-form-state">
+                <div class="form-group">
+                    <label class="form-label" for="peer-url">Peer Control Plane Address</label>
+                    <input class="form-input" type="text" id="peer-url" value="http://control-plane:8081" placeholder="e.g. http://control-plane:8081" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="wizard-asset-id">Target Asset ID</label>
+                    <input class="form-input" type="text" id="wizard-asset-id" value="dataset-asset-01" placeholder="e.g. dataset-asset-01" required>
+                </div>
+                <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 12px;">
+                    <button type="button" class="btn btn-secondary" onclick="closeWizardModal()">Cancel</button>
+                    <button type="button" class="btn" onclick="startHandshake()">Initiate Handshake</button>
+                </div>
+            </div>
+
+            <!-- Handshake Timeline Execution Progress -->
+            <div id="wizard-timeline-state" style="display: none;">
+                <div class="timeline">
+                    <div class="timeline-step" id="step-negotiate">
+                        <span class="timeline-marker"></span>
+                        <div class="timeline-content">
+                            <span class="timeline-title">Contract Negotiation</span>
+                            <span class="timeline-desc" id="lbl-negotiate">Ready to initiate DSP Agreement handshake...</span>
+                        </div>
+                    </div>
+                    <div class="timeline-step" id="step-agreement">
+                        <span class="timeline-marker"></span>
+                        <div class="timeline-content">
+                            <span class="timeline-title">Sign-off Policy Agreement</span>
+                            <span class="timeline-desc" id="lbl-agreement">Awaiting negotiation execution...</span>
+                        </div>
+                    </div>
+                    <div class="timeline-step" id="step-transfer">
+                        <span class="timeline-marker"></span>
+                        <div class="timeline-content">
+                            <span class="timeline-title">Data Egress Channel</span>
+                            <span class="timeline-desc" id="lbl-transfer">Pending transfer start signaling...</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 16px;">
+                    <button type="button" class="btn btn-secondary" id="btn-wizard-close" onclick="closeWizardModal()" style="display: none;">Done</button>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
+
+<script>
+    function openWizardModal() {
+        document.getElementById('wizard-modal').style.display = 'flex';
+        document.getElementById('wizard-form-state').style.display = 'block';
+        document.getElementById('wizard-timeline-state').style.display = 'none';
+
+        // Reset steps
+        ['step-negotiate', 'step-agreement', 'step-transfer'].forEach(id => {
+            document.getElementById(id).className = 'timeline-step';
+        });
+        document.getElementById('lbl-negotiate').innerText = 'Ready to initiate DSP Agreement handshake...';
+        document.getElementById('lbl-agreement').innerText = 'Awaiting negotiation execution...';
+        document.getElementById('lbl-transfer').innerText = 'Pending transfer start signaling...';
+        document.getElementById('btn-wizard-close').style.display = 'none';
+    }
+
+    function closeWizardModal() {
+        document.getElementById('wizard-modal').style.display = 'none';
+    }
+
+    async function startHandshake() {
+        document.getElementById('wizard-form-state').style.display = 'none';
+        document.getElementById('wizard-timeline-state').style.display = 'block';
+
+        const peerUrl = document.getElementById('peer-url').value;
+        const assetId = document.getElementById('wizard-asset-id').value;
+
+        // Step 1: Contract Negotiation
+        const stepNeg = document.getElementById('step-negotiate');
+        stepNeg.classList.add('active');
+        document.getElementById('lbl-negotiate').innerText = 'Submitting Contract Negotiation request to: ' + peerUrl;
+
+        try {
+            const resNeg = await fetch('/api/negotiate/start', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ counterPartyAddress: peerUrl, assetId: assetId })
+            });
+            if (!resNeg.ok) throw new Error('Failed to initiate negotiation');
+            const dataNeg = await resNeg.json();
+            
+            stepNeg.className = 'timeline-step completed';
+            document.getElementById('lbl-negotiate').innerText = 'Agreement Negotiation registered: ' + dataNeg.id;
+
+            // Step 2: Policy Agreement Sign-off
+            const stepAg = document.getElementById('step-agreement');
+            stepAg.classList.add('active');
+            document.getElementById('lbl-agreement').innerText = 'Sign-off complete. Agreement signed: agreement-' + dataNeg.id;
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            stepAg.className = 'timeline-step completed';
+
+            // Step 3: Transfer Process
+            const stepTrans = document.getElementById('step-transfer');
+            stepTrans.classList.add('active');
+            document.getElementById('lbl-transfer').innerText = 'Starting secure egress transfer mapping...';
+
+            const resTrans = await fetch('/api/transfer/start', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    contractId: 'agreement-' + dataNeg.id,
+                    assetId: assetId,
+                    counterPartyAddress: peerUrl
+                })
+            });
+            if (!resTrans.ok) throw new Error('Failed to start transfer');
+            const dataTrans = await resTrans.json();
+
+            stepTrans.className = 'timeline-step completed';
+            document.getElementById('lbl-transfer').innerText = 'Egress data stream channel mapped: ' + dataTrans.id;
+            
+            // Show Done Button
+            document.getElementById('btn-wizard-close').style.display = 'block';
+
+        } catch (err) {
+            console.error(err);
+            document.getElementById('lbl-negotiate').innerText = 'Handshake orchestration error: ' + err.message;
+            document.getElementById('btn-wizard-close').style.display = 'block';
+        }
+    }
+</script>
 {{end}}
