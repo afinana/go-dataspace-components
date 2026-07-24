@@ -3,7 +3,9 @@
     <!-- Top Action Bar -->
     <div class="page-actions-bar">
         <div class="search-filter-box">
-            <span style="color: var(--text-muted);">🔍</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--text-muted); flex-shrink: 0;">
+                <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
             <input type="text" id="contract-search" class="search-input" placeholder="Search contract definitions by ID..." onkeyup="filterContracts()">
         </div>
         <button class="btn-primary" onclick="openCreateContractModal()">+ Create Contract Definition</button>
@@ -12,41 +14,44 @@
     <!-- Contract Definitions Grid -->
     <div class="cards-grid" id="contracts-grid">
         {{range .ContractDefinitions}}
-        <div class="ui-card contract-card-item catalog-card-fixed" data-search="{{.ID}} {{.AccessPolicyID}} {{.ContractPolicyID}}" style="display: flex; flex-direction: column; justify-content: space-between; min-height: 380px; box-sizing: border-box;">
+        <div class="ui-card contract-card-item catalog-card-fixed" data-search="{{.ID}} {{.AccessPolicyID}} {{.ContractPolicyID}}">
             <div>
-                <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; gap: 0.5rem; margin-bottom: 0.75rem;">
-                    <span class="code-snippet" title="{{.ID}}" style="max-width: 190px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: inline-block;">{{.ID}}</span>
-                    <span class="status-badge status-STARTED" style="white-space: nowrap !important; flex-shrink: 0 !important;">PUBLISHED</span>
+                <div class="card-header">
+                    <span class="code-snippet" title="{{.ID}}">{{.ID}}</span>
+                    <span class="status-badge status-STARTED">PUBLISHED</span>
                 </div>
 
-                <div class="card-title" style="font-size: 1.1rem; font-weight: 700; color: var(--text-primary); margin-bottom: 0.75rem; line-height: 1.35;">Contract Publishing Rule</div>
+                <div class="card-title">Contract Publishing Rule</div>
 
-                <div class="card-body" style="overflow: visible; margin-bottom: 0.75rem;">
-                    <div style="background: var(--bg-input); padding: 0.75rem 0.85rem; border-radius: 8px; border: 1px solid var(--border-color); font-size: 0.825rem; font-family: var(--font-mono); margin-bottom: 0.75rem;">
-                        <div title="{{.AccessPolicyID}}" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%;"><strong>Access Policy:</strong> <span style="color: var(--accent-primary);">{{.AccessPolicyID}}</span></div>
-                        <div title="{{.ContractPolicyID}}" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%; margin-top: 0.2rem;"><strong>Contract Policy:</strong> <span style="color: var(--status-requested);">{{.ContractPolicyID}}</span></div>
+                <div class="card-body">
+                    <div style="background: var(--bg-input); padding: 0.65rem 0.8rem; border-radius: var(--radius-sm); border: 1px solid var(--border-color); font-size: 0.82rem; font-family: var(--font-mono); margin-bottom: 0.65rem;">
+                        <div title="{{.AccessPolicyID}}" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%;"><strong>Access:</strong> <span style="color: var(--accent-primary);">{{.AccessPolicyID}}</span></div>
+                        <div title="{{.ContractPolicyID}}" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%; margin-top: 0.15rem;"><strong>Contract:</strong> <span style="color: var(--status-requested);">{{.ContractPolicyID}}</span></div>
                     </div>
 
-                    <div style="font-weight: 600; font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 0.35rem;">Asset Selector Criteria</div>
+                    <div style="font-weight: 600; font-size: 0.78rem; color: var(--text-muted); margin-bottom: 0.3rem; text-transform: uppercase; letter-spacing: 0.3px;">Asset Selector</div>
                     {{range .AssetsSelector}}
-                    <div style="font-size: 0.775rem; background: var(--bg-surface); padding: 0.45rem 0.65rem; border-radius: 6px; border: 1px solid var(--border-color); font-family: var(--font-mono); word-break: break-word;">
+                    <div style="font-size: 0.75rem; background: var(--bg-surface); padding: 0.4rem 0.6rem; border-radius: var(--radius-sm); border: 1px solid var(--border-color); font-family: var(--font-mono); word-break: break-word;">
                         {{.OperandLeft}} <strong>{{.Operator}}</strong> <span style="color: var(--status-started);">"{{.OperandRight}}"</span>
                     </div>
                     {{end}}
                 </div>
             </div>
 
-            <div class="card-footer" style="display: flex; justify-content: flex-end; gap: 0.5rem; width: 100%; border-top: 1px solid var(--border-color); padding-top: 0.85rem; margin-top: 1rem;">
-                <button class="btn-secondary" onclick="viewContractDetails('{{.ID}}', '{{.AccessPolicyID}}', '{{.ContractPolicyID}}')" style="font-size: 0.8rem; padding: 0.35rem 0.75rem;">View</button>
-                
-                <button class="btn-secondary" onclick="editContract('{{.ID}}', '{{.AccessPolicyID}}', '{{.ContractPolicyID}}')" style="font-size: 0.8rem; padding: 0.35rem 0.75rem; color: var(--accent-primary);">Edit</button>
+            <div class="card-footer">
+                <button class="btn-secondary" onclick="viewContractDetails('{{.ID}}', '{{.AccessPolicyID}}', '{{.ContractPolicyID}}')" style="font-size: 0.78rem; padding: 0.3rem 0.7rem;">View</button>
 
-                <button type="button" class="btn-secondary" onclick="confirmDeleteContract('{{.ID}}')" style="color: var(--status-terminated); border-color: rgba(239,68,68,0.3); font-size: 0.8rem; padding: 0.35rem 0.75rem;">Delete</button>
+                <button class="btn-secondary" onclick="editContract('{{.ID}}', '{{.AccessPolicyID}}', '{{.ContractPolicyID}}')" style="font-size: 0.78rem; padding: 0.3rem 0.7rem; color: var(--accent-primary);">Edit</button>
+
+                <button type="button" class="btn-secondary" onclick="confirmDeleteContract('{{.ID}}')" style="color: var(--status-terminated); border-color: rgba(248,113,113,0.3); font-size: 0.78rem; padding: 0.3rem 0.7rem;">Delete</button>
             </div>
         </div>
         {{else}}
-        <div style="grid-column: 1 / -1; text-align: center; padding: 3rem; background: var(--bg-card); border-radius: 12px; border: 1px dashed var(--border-color); color: var(--text-muted);">
-            No contract definitions published. Click <strong>+ Create Contract Definition</strong> to link policies with assets.
+        <div style="grid-column: 1 / -1; text-align: center; padding: 3rem; background: var(--bg-card); border-radius: var(--radius-lg); border: 1px dashed var(--border-color); color: var(--text-muted);">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="color: var(--text-muted); margin-bottom: 0.75rem; display: block; margin-left: auto; margin-right: auto;">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="12" x2="12" y2="18"/><line x1="9" y1="15" x2="15" y2="15"/>
+            </svg>
+            No contract definitions published.<br>Click <strong>+ Create Contract Definition</strong> to link policies with assets.
         </div>
         {{end}}
     </div>
@@ -56,7 +61,7 @@
 <div class="modal-backdrop" id="create-contract-modal">
     <div class="modal-dialog">
         <div class="modal-header">
-            <h3 class="modal-title" id="contract-modal-title">Create EDC Contract Definition</h3>
+            <h3 class="modal-title" id="contract-modal-title">Create Contract Definition</h3>
             <button class="modal-close" onclick="closeCreateContractModal()">&times;</button>
         </div>
 
@@ -67,7 +72,7 @@
             </div>
 
             <div class="form-group">
-                <label class="form-label">Access Policy ID (Catalog Visibility) *</label>
+                <label class="form-label">Access Policy ID *</label>
                 <select name="accessPolicyId" id="form-contract-access-policy" class="form-control" required>
                     {{range .Policies}}
                     <option value="{{.ID}}">{{.ID}}</option>
@@ -78,7 +83,7 @@
             </div>
 
             <div class="form-group">
-                <label class="form-label">Contract Policy ID (Agreement Requirements) *</label>
+                <label class="form-label">Contract Policy ID *</label>
                 <select name="contractPolicyId" id="form-contract-contract-policy" class="form-control" required>
                     {{range .Policies}}
                     <option value="{{.ID}}">{{.ID}}</option>
@@ -101,7 +106,7 @@
 
             <div class="modal-footer">
                 <button type="button" class="btn-secondary" onclick="closeCreateContractModal()">Cancel</button>
-                <button type="submit" class="btn-primary">Publish Contract (POST /v3/contractdefinitions)</button>
+                <button type="submit" class="btn-primary">Publish Contract</button>
             </div>
         </form>
     </div>
@@ -114,21 +119,21 @@
             <h3 class="modal-title">Contract Definition JSON</h3>
             <button class="modal-close" onclick="closeViewContractModal()">&times;</button>
         </div>
-        <div id="view-contract-body" style="font-family: var(--font-mono); font-size: 0.85rem; background: var(--bg-input); padding: 1.25rem; border-radius: 8px; border: 1px solid var(--border-color); white-space: pre-wrap; word-break: break-all;"></div>
+        <div id="view-contract-body" style="font-family: var(--font-mono); font-size: 0.82rem; background: var(--bg-input); padding: 1.15rem; border-radius: var(--radius-md); border: 1px solid var(--border-color); white-space: pre-wrap; word-break: break-all; line-height: 1.6;"></div>
         <div class="modal-footer">
             <button class="btn-secondary" onclick="closeViewContractModal()">Close</button>
         </div>
     </div>
 </div>
 
-<!-- Modal: Confirmation Dialog for Contract Definition Deletion -->
+<!-- Modal: Confirm Delete -->
 <div class="modal-backdrop" id="delete-contract-confirm-modal">
     <div class="modal-dialog" style="max-width: 420px;">
         <div class="modal-header">
-            <h3 class="modal-title" style="color: var(--status-terminated);">Confirm Contract Deletion</h3>
+            <h3 class="modal-title" style="color: var(--status-terminated);">Confirm Deletion</h3>
             <button class="modal-close" onclick="closeDeleteContractConfirmModal()">&times;</button>
         </div>
-        <div style="padding: 1rem 0; color: var(--text-secondary); font-size: 0.9rem;">
+        <div style="padding: 0.85rem 0; color: var(--text-secondary); font-size: 0.88rem; line-height: 1.5;">
             Are you sure you want to delete contract definition <strong id="delete-contract-target-id" style="color: var(--text-primary); font-family: var(--font-mono);"></strong>?
         </div>
         <form id="delete-contract-confirm-form" action="/contract-definitions/delete" method="POST">
@@ -153,7 +158,7 @@
     }
 
     function openCreateContractModal() {
-        document.getElementById('contract-modal-title').innerText = 'Create EDC Contract Definition';
+        document.getElementById('contract-modal-title').innerText = 'Create Contract Definition';
         document.getElementById('form-contract-id').readOnly = false;
         document.getElementById('form-contract-id').value = '';
         document.getElementById('contract-form').action = '/contract-definitions';
@@ -161,7 +166,7 @@
     }
 
     function editContract(id, accessPol, contractPol) {
-        document.getElementById('contract-modal-title').innerText = 'Edit Contract Definition: ' + id;
+        document.getElementById('contract-modal-title').innerText = 'Edit Contract: ' + id;
         document.getElementById('form-contract-id').value = id;
         document.getElementById('form-contract-id').readOnly = true;
         if (document.getElementById('form-contract-access-policy')) {

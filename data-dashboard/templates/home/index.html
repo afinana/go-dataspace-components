@@ -1,79 +1,147 @@
 {{define "content"}}
-<div class="home-overview">
-    <!-- Overview Metrics Row -->
-    <div class="cards-grid">
-        <div class="ui-card">
-            <div class="card-header">
-                <span class="card-subtitle">Registered Assets</span>
-                <span class="code-snippet">/v3/assets</span>
-            </div>
-            <div class="card-title" style="font-size: 2rem;">{{.AssetsCount}}</div>
-            <div class="card-body">DCAT-AP data distributions and endpoints</div>
-            <a href="/assets" class="btn-secondary" style="display: inline-block; text-decoration: none; padding: 0.4rem 0.8rem; font-size: 0.8rem;">Manage Assets &rarr;</a>
-        </div>
+<div class="page-header" style="margin-bottom: 2rem;">
+    <h1 style="font-size: 2rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--text-primary);">Dashboard Overview</h1>
+    <p style="color: var(--text-secondary); font-size: 1.1rem;">Monitor and manage your dataspace connectivity and resources.</p>
+</div>
 
-        <div class="ui-card">
-            <div class="card-header">
-                <span class="card-subtitle">Policy Definitions</span>
-                <span class="code-snippet">/v3/policydefinitions</span>
-            </div>
-            <div class="card-title" style="font-size: 2rem;">{{.PoliciesCount}}</div>
-            <div class="card-body">ODRL usage constraints and permissions</div>
-            <a href="/policies" class="btn-secondary" style="display: inline-block; text-decoration: none; padding: 0.4rem 0.8rem; font-size: 0.8rem;">Manage Policies &rarr;</a>
+<div class="cards-grid" style="display: grid; gap: 1.5rem; grid-template-columns: repeat(4, 1fr); margin-bottom: 2rem;">
+    <!-- Assets Card -->
+    <div class="ui-card" style="border-left: 4px solid var(--accent-primary); display: flex; flex-direction: column; justify-content: space-between;">
+        <div class="card-body">
+            <h3 class="card-title" style="color: var(--text-muted); font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem;">Data Assets</h3>
+            <div style="font-size: 2.5rem; font-weight: 800; background: var(--accent-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 0.25rem;">{{.AssetsCount}}</div>
+            <div style="color: var(--text-secondary); font-size: 0.85rem; font-family: var(--font-mono);">/management/v3/assets</div>
         </div>
-
-        <div class="ui-card">
-            <div class="card-header">
-                <span class="card-subtitle">Contract Definitions</span>
-                <span class="code-snippet">/v3/contractdefinitions</span>
-            </div>
-            <div class="card-title" style="font-size: 2rem;">{{.ContractsCount}}</div>
-            <div class="card-body">Policy-to-asset catalog publishing rules</div>
-            <a href="/contract-definitions" class="btn-secondary" style="display: inline-block; text-decoration: none; padding: 0.4rem 0.8rem; font-size: 0.8rem;">Manage Contracts &rarr;</a>
-        </div>
-
-        <div class="ui-card">
-            <div class="card-header">
-                <span class="card-subtitle">Active Negotiations</span>
-                <span class="code-snippet">DSP Protocol</span>
-            </div>
-            <div class="card-title" style="font-size: 2rem;">{{.NegotiationsCount}}</div>
-            <div class="card-body">Contract negotiation handshakes</div>
-            <a href="/transfers" class="btn-secondary" style="display: inline-block; text-decoration: none; padding: 0.4rem 0.8rem; font-size: 0.8rem;">View Negotiations &rarr;</a>
+        <div class="card-footer" style="padding-top: 1rem; margin-top: auto; border-top: 1px solid var(--border-color);">
+            <a href="/assets" style="color: var(--accent-primary); text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 0.25rem;">Manage Assets &rarr;</a>
         </div>
     </div>
 
-    <!-- Active Connector Info & Credentials Section -->
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-top: 1rem;">
-        <div class="ui-card">
-            <div class="card-header">
-                <div class="card-title">Target Connector Context</div>
-                <span class="status-badge status-STARTED">ACTIVE NODE</span>
-            </div>
-            <div class="card-body" style="font-family: var(--font-mono); font-size: 0.825rem; line-height: 1.8;">
-                <div><strong>Node ID:</strong> {{.ActiveConnector.ID}}</div>
-                <div><strong>Name:</strong> {{.ActiveConnector.Name}}</div>
-                <div><strong>Control Plane:</strong> {{.ActiveConnector.ControlPlaneURL}}</div>
-                <div><strong>Data Plane:</strong> {{.ActiveConnector.DataPlaneURL}}</div>
-                <div><strong>Identity Hub:</strong> {{.ActiveConnector.IdentityHubURL}}</div>
-            </div>
+    <!-- Policies Card -->
+    <div class="ui-card" style="border-left: 4px solid var(--status-agreed); display: flex; flex-direction: column; justify-content: space-between;">
+        <div class="card-body">
+            <h3 class="card-title" style="color: var(--text-muted); font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem;">Policies</h3>
+            <div style="font-size: 2.5rem; font-weight: 800; background: var(--accent-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 0.25rem;">{{.PoliciesCount}}</div>
+            <div style="color: var(--text-secondary); font-size: 0.85rem; font-family: var(--font-mono);">/management/v3/policydefinitions</div>
         </div>
+        <div class="card-footer" style="padding-top: 1rem; margin-top: auto; border-top: 1px solid var(--border-color);">
+            <a href="/policies" style="color: var(--status-agreed); text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 0.25rem;">Manage Policies &rarr;</a>
+        </div>
+    </div>
 
-        <div class="ui-card">
-            <div class="card-header">
-                <div class="card-title">Verifiable Credentials</div>
-                <span class="status-badge status-AGREED">{{.CredentialsCount}} ISSUED</span>
+    <!-- Contracts Card -->
+    <div class="ui-card" style="border-left: 4px solid var(--status-started); display: flex; flex-direction: column; justify-content: space-between;">
+        <div class="card-body">
+            <h3 class="card-title" style="color: var(--text-muted); font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem;">Contract Definitions</h3>
+            <div style="font-size: 2.5rem; font-weight: 800; background: var(--accent-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 0.25rem;">{{.ContractsCount}}</div>
+            <div style="color: var(--text-secondary); font-size: 0.85rem; font-family: var(--font-mono);">/management/v3/contractdefinitions</div>
+        </div>
+        <div class="card-footer" style="padding-top: 1rem; margin-top: auto; border-top: 1px solid var(--border-color);">
+            <a href="/contracts" style="color: var(--status-started); text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 0.25rem;">Manage Contracts &rarr;</a>
+        </div>
+    </div>
+
+    <!-- Negotiations Card -->
+    <div class="ui-card" style="border-left: 4px solid var(--status-requested); display: flex; flex-direction: column; justify-content: space-between;">
+        <div class="card-body">
+            <h3 class="card-title" style="color: var(--text-muted); font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem;">Negotiations</h3>
+            <div style="font-size: 2.5rem; font-weight: 800; background: var(--accent-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 0.25rem;">{{.NegotiationsCount}}</div>
+            <div style="color: var(--text-secondary); font-size: 0.85rem; font-family: var(--font-mono);">/management/v3/contractnegotiations</div>
+        </div>
+        <div class="card-footer" style="padding-top: 1rem; margin-top: auto; border-top: 1px solid var(--border-color);">
+            <a href="/negotiations" style="color: var(--status-requested); text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 0.25rem;">Manage Negotiations &rarr;</a>
+        </div>
+    </div>
+</div>
+
+<div style="display: grid; gap: 1.5rem; grid-template-columns: 1fr 1fr;">
+    <!-- Target Connector Context -->
+    <div class="ui-card" style="display: flex; flex-direction: column;">
+        <div class="card-header" style="border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; margin-bottom: 1rem;">
+            <h2 class="card-title" style="font-size: 1.25rem; font-weight: 600; margin: 0; color: var(--text-primary); display: flex; align-items: center; gap: 0.5rem;">
+                <span style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background-color: var(--accent-primary); box-shadow: 0 0 8px var(--accent-glow);"></span>
+                Target Connector Context
+            </h2>
+        </div>
+        <div class="card-body" style="flex: 1;">
+            {{if .ActiveConnector}}
+            <div style="margin-bottom: 1.5rem;">
+                <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.25rem;">Connector ID</div>
+                <div class="code-snippet" style="font-family: var(--font-mono); font-size: 0.9rem; background: var(--bg-input); padding: 0.5rem 0.75rem; border-radius: 4px; border: 1px solid var(--border-color); color: var(--text-primary);">{{.ActiveConnector.ID}}</div>
             </div>
-            <div class="card-body">
-                {{range .Credentials}}
-                <div style="background: var(--bg-input); padding: 0.75rem; border-radius: 8px; margin-bottom: 0.5rem; border: 1px solid var(--border-color);">
-                    <div style="font-weight: 600; color: var(--text-primary);">{{.ID}}</div>
-                    <div style="font-size: 0.75rem; color: var(--text-secondary);">Issuer: {{.Issuer}}</div>
+            
+            <div style="margin-bottom: 1.25rem;">
+                <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.5rem;">Endpoints</div>
+                
+                <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem;">
+                    <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background-color: var(--status-agreed);"></span>
+                    <div style="flex: 1;">
+                        <div style="font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 0.15rem; text-transform: uppercase;">Control Plane</div>
+                        <div style="font-family: var(--font-mono); font-size: 0.85rem; color: var(--text-primary);">{{.ActiveConnector.ControlPlaneURL}}</div>
+                    </div>
                 </div>
-                {{else}}
-                <div style="color: var(--text-muted);">No verifiable credentials issued to local connector.</div>
-                {{end}}
+                
+                <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem;">
+                    <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background-color: var(--status-started);"></span>
+                    <div style="flex: 1;">
+                        <div style="font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 0.15rem; text-transform: uppercase;">Data Plane</div>
+                        <div style="font-family: var(--font-mono); font-size: 0.85rem; color: var(--text-primary);">{{.ActiveConnector.DataPlaneURL}}</div>
+                    </div>
+                </div>
+                
+                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                    <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background-color: var(--accent-primary);"></span>
+                    <div style="flex: 1;">
+                        <div style="font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 0.15rem; text-transform: uppercase;">Identity Hub</div>
+                        <div style="font-family: var(--font-mono); font-size: 0.85rem; color: var(--text-primary);">{{.ActiveConnector.IdentityHubURL}}</div>
+                    </div>
+                </div>
             </div>
+            {{else}}
+            <div style="padding: 2rem; text-align: center; color: var(--text-muted);">
+                No active connector configured.
+            </div>
+            {{end}}
+        </div>
+    </div>
+
+    <!-- Verifiable Credentials -->
+    <div class="ui-card" style="display: flex; flex-direction: column;">
+        <div class="card-header" style="border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; margin-bottom: 1rem; display: flex; justify-content: space-between; align-items: center;">
+            <h2 class="card-title" style="font-size: 1.25rem; font-weight: 600; margin: 0; color: var(--text-primary); display: flex; align-items: center; gap: 0.5rem;">
+                <span style="display: inline-block; width: 14px; height: 14px; clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%); background: var(--accent-gradient);"></span>
+                Verifiable Credentials
+            </h2>
+            <span class="status-badge" style="background: var(--bg-surface); color: var(--accent-primary); border: 1px solid var(--border-color); padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem; font-weight: 600;">{{.CredentialsCount}} Active</span>
+        </div>
+        <div class="card-body" style="flex: 1; overflow-y: auto; max-height: 400px;">
+            {{if .Credentials}}
+                <div style="display: flex; flex-direction: column; gap: 1rem;">
+                {{range .Credentials}}
+                    <div style="padding: 1rem; border-radius: 8px; background: linear-gradient(var(--bg-card), var(--bg-card)) padding-box, var(--accent-gradient) border-box; border: 1px solid transparent; position: relative;">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem;">
+                            <div style="font-weight: 600; color: var(--text-primary); font-size: 0.95rem;">MembershipCredential</div>
+                            <span class="status-badge" style="background: rgba(34, 197, 94, 0.1); color: #22c55e; padding: 0.15rem 0.4rem; border-radius: 4px; font-size: 0.7rem; font-weight: 600; text-transform: uppercase;">Valid</span>
+                        </div>
+                        <div style="margin-bottom: 0.75rem;">
+                            <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.25rem;">Credential ID</div>
+                            <div style="font-family: var(--font-mono); font-size: 0.8rem; color: var(--text-secondary); word-break: break-all;">{{.ID}}</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.25rem;">Issuer</div>
+                            <div style="font-family: var(--font-mono); font-size: 0.8rem; color: var(--text-secondary); word-break: break-all;">{{.Issuer}}</div>
+                        </div>
+                    </div>
+                {{end}}
+                </div>
+            {{else}}
+            <div style="padding: 2rem; text-align: center; color: var(--text-muted);">
+                No credentials found in the Identity Hub.
+            </div>
+            {{end}}
+        </div>
+        <div class="card-footer" style="padding-top: 1rem; margin-top: 1rem; border-top: 1px solid var(--border-color); text-align: right;">
+            <a href="/credentials" class="btn-primary" style="display: inline-block; padding: 0.5rem 1rem; background: var(--accent-gradient); color: white; text-decoration: none; border-radius: 4px; font-weight: 600; font-size: 0.9rem; border: none; cursor: pointer;">View Wallet &rarr;</a>
         </div>
     </div>
 </div>

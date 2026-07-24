@@ -1,10 +1,11 @@
 {{define "content"}}
 <div class="federated-catalog-view">
     <!-- DSP Provider Query Bar -->
-    <div style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 1.25rem; margin-bottom: 1.5rem;">
+    <div style="background: var(--bg-card); border: 1px solid var(--border-color); border-left: 4px solid var(--accent-primary); border-radius: 12px; padding: 1.25rem; margin-bottom: 1.5rem;">
         <div style="font-weight: 700; font-size: 0.95rem; margin-bottom: 0.5rem; color: var(--accent-primary);">Dataspace Protocol (DSP) Catalog Query</div>
+        <label for="provider-dsp-address" style="display: block; font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.25rem;">Counter-Party DSP Endpoint</label>
         <div style="display: flex; gap: 0.75rem;">
-            <input type="text" id="provider-dsp-address" class="form-control" placeholder="http://provider-connector:8282/api/v1/dsp" value="{{if .ProviderUrl}}{{.ProviderUrl}}{{else}}http://provider-connector:8282/api/v1/dsp{{end}}" style="font-family: var(--font-mono);">
+            <input type="text" id="provider-dsp-address" class="form-control" placeholder="http://provider-connector:8282/api/v1/dsp" value="{{if .ProviderUrl}}{{.ProviderUrl}}{{else}}http://provider-connector:8282/api/v1/dsp{{end}}" style="font-family: var(--font-mono); flex-grow: 1;">
             <button class="btn-primary" id="btn-query-catalog" onclick="queryRemoteCatalog()" style="white-space: nowrap;">Query DSP Catalog</button>
         </div>
     </div>
@@ -16,33 +17,35 @@
     <div class="cards-grid" id="catalog-dataset-grid">
         {{if .Catalog}}
         {{range .Catalog.Datasets}}
-        <div class="ui-card catalog-card-fixed" style="display: flex; flex-direction: column; justify-content: space-between; min-height: 380px; box-sizing: border-box;">
+        <div class="ui-card catalog-card-fixed">
             <div>
-                <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; gap: 0.5rem; margin-bottom: 0.75rem;">
-                    <span class="code-snippet" title="{{.ID}}" style="max-width: 190px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: inline-block;">{{.ID}}</span>
-                    <span class="status-badge status-AGREED" style="white-space: nowrap !important; flex-shrink: 0 !important;">DSP ASSET</span>
+                <div class="card-header">
+                    <span class="code-snippet" title="{{.ID}}">{{.ID}}</span>
+                    <span class="status-badge status-AGREED">DSP ASSET</span>
                 </div>
 
-                <div class="card-title" style="font-size: 1.1rem; font-weight: 700; color: var(--text-primary); margin-bottom: 0.75rem; line-height: 1.35;">{{.Title}}</div>
+                <div class="card-title">{{.Title}}</div>
 
-                <div class="card-body" style="overflow: visible; margin-bottom: 0.75rem;">
-                    <p style="margin-bottom: 0.75rem; font-size: 0.875rem; color: var(--text-secondary); line-height: 1.4;">{{.Description}}</p>
+                <div class="card-body">
+                    <p class="card-description" style="color: var(--text-secondary); font-size: 0.875rem; margin-bottom: 0.75rem;">{{.Description}}</p>
                     <div style="font-size: 0.775rem; color: var(--text-muted); font-family: var(--font-mono); margin-bottom: 0.75rem;">
                         <div><strong>Publisher:</strong> {{.Publisher}}</div>
                         <div><strong>Type:</strong> {{.Type}}</div>
                     </div>
-
+                    
+                    <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
                     {{range .Distributions}}
-                    <div style="background: var(--bg-input); padding: 0.65rem 0.85rem; border-radius: 8px; border: 1px solid var(--border-color); font-size: 0.8rem; margin-bottom: 0.5rem;">
-                        <div style="font-weight: 600; color: var(--text-primary);">Distribution: {{.Title}}</div>
-                        <div style="font-family: var(--font-mono); color: var(--accent-primary); margin-top: 0.15rem;">Format: {{.Format}}</div>
-                    </div>
+                        <div class="distribution-pill" style="display: inline-flex; align-items: center; background: var(--bg-input); padding: 0.25rem 0.6rem; border-radius: 12px; border: 1px solid var(--border-color); font-size: 0.75rem;">
+                            <span style="font-weight: 600; color: var(--text-primary); margin-right: 0.3rem;">{{.Title}}</span>
+                            <span style="font-family: var(--font-mono); color: var(--accent-primary);">({{.Format}})</span>
+                        </div>
                     {{end}}
+                    </div>
                 </div>
             </div>
 
-            <div class="card-footer" style="display: flex; justify-content: flex-end; width: 100%; border-top: 1px solid var(--border-color); padding-top: 0.85rem; margin-top: 1rem;">
-                <button class="btn-primary" onclick="startNegotiation('{{.ID}}')" style="font-size: 0.85rem; padding: 0.45rem 1rem; margin-left: auto;">Negotiate Contract &rarr;</button>
+            <div class="card-footer">
+                <button class="btn-primary" onclick="startNegotiation('{{.ID}}')">Negotiate Contract &rarr;</button>
             </div>
         </div>
         {{end}}
@@ -62,13 +65,32 @@
             <button class="modal-close" onclick="closeNegotiationModal()">&times;</button>
         </div>
 
-        <div style="text-align: center; padding: 1.5rem 0;">
-            <div id="neg-spinner" style="display: flex; justify-content: center; margin-bottom: 0.75rem;">
-                <div style="width: 42px; height: 42px; border-radius: 50%; border: 3px solid rgba(56, 189, 248, 0.2); border-top-color: var(--accent-primary); animation: spin 1s linear infinite;"></div>
+        <div style="padding: 1.5rem 0;">
+            <!-- Stepper -->
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; position: relative;">
+                <div style="position: absolute; top: 50%; left: 10%; right: 10%; height: 2px; background: var(--border-color); z-index: 1;"></div>
+                <div style="display: flex; flex-direction: column; align-items: center; z-index: 2; background: var(--bg-modal); padding: 0 0.5rem;" id="step-request">
+                    <div style="width: 24px; height: 24px; border-radius: 50%; background: var(--accent-primary); color: white; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: bold; margin-bottom: 0.25rem;">1</div>
+                    <span style="font-size: 0.7rem; color: var(--text-primary); font-weight: 600;">Request</span>
+                </div>
+                <div style="display: flex; flex-direction: column; align-items: center; z-index: 2; background: var(--bg-modal); padding: 0 0.5rem;" id="step-verify">
+                    <div style="width: 24px; height: 24px; border-radius: 50%; background: var(--bg-input); border: 2px solid var(--border-color); color: var(--text-muted); display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: bold; margin-bottom: 0.25rem;" id="step-verify-icon">2</div>
+                    <span style="font-size: 0.7rem; color: var(--text-muted);" id="step-verify-text">Verify</span>
+                </div>
+                <div style="display: flex; flex-direction: column; align-items: center; z-index: 2; background: var(--bg-modal); padding: 0 0.5rem;" id="step-agree">
+                    <div style="width: 24px; height: 24px; border-radius: 50%; background: var(--bg-input); border: 2px solid var(--border-color); color: var(--text-muted); display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: bold; margin-bottom: 0.25rem;" id="step-agree-icon">3</div>
+                    <span style="font-size: 0.7rem; color: var(--text-muted);" id="step-agree-text">Agree</span>
+                </div>
             </div>
-            <div id="neg-status-badge" class="status-badge status-REQUESTED" style="display: inline-block; font-size: 0.9rem; padding: 0.4rem 1rem;">REQUESTED</div>
-            <div id="neg-message" style="margin-top: 1rem; font-size: 0.9rem; color: var(--text-secondary);">Sending ODRL contract offer to provider control plane for verification...</div>
-            <div id="neg-id-wrapper" style="margin-top: 0.75rem; font-family: var(--font-mono); font-size: 0.8rem; color: var(--accent-primary);"></div>
+
+            <div style="text-align: center;">
+                <div id="neg-spinner" style="display: flex; justify-content: center; margin-bottom: 0.75rem;">
+                    <div style="width: 42px; height: 42px; border-radius: 50%; border: 3px solid rgba(56, 189, 248, 0.2); border-top-color: var(--accent-primary); animation: spin 1s linear infinite;"></div>
+                </div>
+                <div id="neg-status-badge" class="status-badge status-REQUESTED" style="display: inline-block; font-size: 0.9rem; padding: 0.4rem 1rem;">REQUESTED</div>
+                <div id="neg-message" style="margin-top: 1rem; font-size: 0.9rem; color: var(--text-secondary);">Sending ODRL contract offer to provider control plane for verification...</div>
+                <div id="neg-id-wrapper" style="margin-top: 0.75rem; font-family: var(--font-mono); font-size: 0.8rem; color: var(--accent-primary);"></div>
+            </div>
         </div>
 
         <div class="modal-footer">
@@ -82,6 +104,40 @@
 @keyframes spin {
     to { transform: rotate(360deg); }
 }
+/* CSS classes for dynamic UI elements to avoid inline styles in JS */
+.check-icon {
+    width: 46px; height: 46px; border-radius: 50%; 
+    background: rgba(16, 185, 129, 0.2); border: 2px solid var(--status-started); 
+    display: flex; align-items: center; justify-content: center; margin: 0 auto;
+    position: relative;
+}
+.check-icon::before {
+    content: '';
+    display: inline-block;
+    transform: rotate(45deg);
+    height: 16px;
+    width: 8px;
+    border-bottom: 3px solid var(--status-started);
+    border-right: 3px solid var(--status-started);
+    margin-bottom: 4px;
+}
+.error-icon {
+    width: 46px; height: 46px; border-radius: 50%; 
+    background: rgba(239, 68, 68, 0.2); border: 2px solid var(--status-terminated); 
+    display: flex; align-items: center; justify-content: center; margin: 0 auto;
+    position: relative;
+}
+.error-icon::before, .error-icon::after {
+    content: '';
+    position: absolute;
+    height: 18px;
+    width: 3px;
+    background-color: var(--status-terminated);
+}
+.error-icon::before { transform: rotate(45deg); }
+.error-icon::after { transform: rotate(-45deg); }
+.stepper-active { background: var(--accent-primary) !important; color: white !important; border-color: var(--accent-primary) !important; }
+.stepper-active-text { color: var(--text-primary) !important; font-weight: 600 !important; }
 </style>
 
 <script>
@@ -134,27 +190,28 @@
 
             let html = '';
             catalog.datasets.forEach(ds => {
-                let distHtml = '';
+                let distHtml = '<div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">';
                 if (ds.distributions) {
                     ds.distributions.forEach(dist => {
                         distHtml += `
-                            <div style="background: var(--bg-input); padding: 0.65rem 0.85rem; border-radius: 8px; border: 1px solid var(--border-color); font-size: 0.8rem; margin-bottom: 0.5rem;">
-                                <div style="font-weight: 600; color: var(--text-primary);">Distribution: ${dist.title || dist.id}</div>
-                                <div style="font-family: var(--font-mono); color: var(--accent-primary); margin-top: 0.15rem;">Format: ${dist.format}</div>
+                            <div class="distribution-pill" style="display: inline-flex; align-items: center; background: var(--bg-input); padding: 0.25rem 0.6rem; border-radius: 12px; border: 1px solid var(--border-color); font-size: 0.75rem;">
+                                <span style="font-weight: 600; color: var(--text-primary); margin-right: 0.3rem;">${dist.title || dist.id}</span>
+                                <span style="font-family: var(--font-mono); color: var(--accent-primary);">(${dist.format})</span>
                             </div>`;
                     });
                 }
+                distHtml += '</div>';
 
                 html += `
-                <div class="ui-card catalog-card-fixed" style="display: flex; flex-direction: column; justify-content: space-between; min-height: 380px; box-sizing: border-box;">
+                <div class="ui-card catalog-card-fixed">
                     <div>
-                        <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; gap: 0.5rem; margin-bottom: 0.75rem;">
-                            <span class="code-snippet" title="${ds.id}" style="max-width: 190px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: inline-block;">${ds.id}</span>
-                            <span class="status-badge status-AGREED" style="white-space: nowrap !important; flex-shrink: 0 !important;">DSP ASSET</span>
+                        <div class="card-header">
+                            <span class="code-snippet" title="${ds.id}">${ds.id}</span>
+                            <span class="status-badge status-AGREED">DSP ASSET</span>
                         </div>
-                        <div class="card-title" style="font-size: 1.1rem; font-weight: 700; color: var(--text-primary); margin-bottom: 0.75rem; line-height: 1.35;">${ds.title}</div>
-                        <div class="card-body" style="overflow: visible; margin-bottom: 0.75rem;">
-                            <p style="margin-bottom: 0.75rem; font-size: 0.875rem; color: var(--text-secondary); line-height: 1.4;">${ds.description || ''}</p>
+                        <div class="card-title">${ds.title}</div>
+                        <div class="card-body">
+                            <p class="card-description" style="color: var(--text-secondary); font-size: 0.875rem; margin-bottom: 0.75rem;">${ds.description || ''}</p>
                             <div style="font-size: 0.775rem; color: var(--text-muted); font-family: var(--font-mono); margin-bottom: 0.75rem;">
                                 <div><strong>Publisher:</strong> ${ds.publisher || 'did:web:provider'}</div>
                                 <div><strong>Type:</strong> ${ds.type || 'dcat:Dataset'}</div>
@@ -162,8 +219,8 @@
                             ${distHtml}
                         </div>
                     </div>
-                    <div class="card-footer" style="display: flex; justify-content: flex-end; width: 100%; border-top: 1px solid var(--border-color); padding-top: 0.85rem; margin-top: 1rem;">
-                        <button class="btn-primary" onclick="startNegotiation('${ds.id}')" style="font-size: 0.85rem; padding: 0.45rem 1rem; margin-left: auto;">Negotiate Contract &rarr;</button>
+                    <div class="card-footer">
+                        <button class="btn-primary" onclick="startNegotiation('${ds.id}')">Negotiate Contract &rarr;</button>
                     </div>
                 </div>`;
             });
@@ -194,6 +251,23 @@
         document.getElementById('neg-message').innerText = `Dispatching contract offer for ${assetId} to ${counterParty}...`;
         document.getElementById('view-transfers-link').style.display = 'none';
 
+        // Reset stepper
+        document.getElementById('step-verify-icon').className = '';
+        document.getElementById('step-verify-icon').style = 'width: 24px; height: 24px; border-radius: 50%; background: var(--bg-input); border: 2px solid var(--border-color); color: var(--text-muted); display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: bold; margin-bottom: 0.25rem;';
+        document.getElementById('step-verify-text').className = '';
+        document.getElementById('step-verify-text').style = 'font-size: 0.7rem; color: var(--text-muted);';
+        
+        document.getElementById('step-agree-icon').className = '';
+        document.getElementById('step-agree-icon').style = 'width: 24px; height: 24px; border-radius: 50%; background: var(--bg-input); border: 2px solid var(--border-color); color: var(--text-muted); display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: bold; margin-bottom: 0.25rem;';
+        document.getElementById('step-agree-text').className = '';
+        document.getElementById('step-agree-text').style = 'font-size: 0.7rem; color: var(--text-muted);';
+
+        // Simulate Verify step
+        setTimeout(() => {
+            document.getElementById('step-verify-icon').classList.add('stepper-active');
+            document.getElementById('step-verify-text').classList.add('stepper-active-text');
+        }, 800);
+
         try {
             const res = await fetch('/api/negotiate/start', {
                 method: 'POST',
@@ -205,7 +279,10 @@
             document.getElementById('neg-id-wrapper').innerText = `Negotiation ID: ${data.id}`;
 
             setTimeout(() => {
-                document.getElementById('neg-spinner').innerHTML = '<div style="width: 46px; height: 46px; border-radius: 50%; background: rgba(16, 185, 129, 0.2); color: #10B981; border: 2px solid #10B981; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: bold; margin: 0 auto;">✓</div>';
+                document.getElementById('step-agree-icon').classList.add('stepper-active');
+                document.getElementById('step-agree-text').classList.add('stepper-active-text');
+
+                document.getElementById('neg-spinner').innerHTML = '<div class="check-icon"></div>';
                 document.getElementById('neg-status-badge').className = 'status-badge status-AGREED';
                 document.getElementById('neg-status-badge').innerText = 'AGREED';
                 document.getElementById('neg-message').innerText = 'Provider accepted policy terms! Legally binding agreement ID issued.';
@@ -213,7 +290,7 @@
             }, 1800);
 
         } catch (err) {
-            document.getElementById('neg-spinner').innerHTML = '<div style="width: 46px; height: 46px; border-radius: 50%; background: rgba(239, 68, 68, 0.2); color: #EF4444; border: 2px solid #EF4444; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: bold; margin: 0 auto;">✕</div>';
+            document.getElementById('neg-spinner').innerHTML = '<div class="error-icon"></div>';
             document.getElementById('neg-status-badge').className = 'status-badge status-TERMINATED';
             document.getElementById('neg-status-badge').innerText = 'TERMINATED';
             document.getElementById('neg-message').innerText = 'Negotiation failed due to network error or policy rejection.';
