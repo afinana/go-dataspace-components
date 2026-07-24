@@ -41,10 +41,7 @@
                 
                 <button class="btn-secondary" onclick="editContract('{{.ID}}', '{{.AccessPolicyID}}', '{{.ContractPolicyID}}')" style="font-size: 0.8rem; padding: 0.35rem 0.75rem; color: var(--accent-primary);">Edit</button>
 
-                <form action="/contract-definitions/delete" method="POST" style="margin: 0;">
-                    <input type="hidden" name="id" value="{{.ID}}">
-                    <button type="submit" class="btn-secondary" style="color: var(--status-terminated); border-color: rgba(239,68,68,0.3); font-size: 0.8rem; padding: 0.35rem 0.75rem;">Delete</button>
-                </form>
+                <button type="button" class="btn-secondary" onclick="confirmDeleteContract('{{.ID}}')" style="color: var(--status-terminated); border-color: rgba(239,68,68,0.3); font-size: 0.8rem; padding: 0.35rem 0.75rem;">Delete</button>
             </div>
         </div>
         {{else}}
@@ -124,7 +121,37 @@
     </div>
 </div>
 
+<!-- Modal: Confirmation Dialog for Contract Definition Deletion -->
+<div class="modal-backdrop" id="delete-contract-confirm-modal">
+    <div class="modal-dialog" style="max-width: 420px;">
+        <div class="modal-header">
+            <h3 class="modal-title" style="color: var(--status-terminated);">Confirm Contract Deletion</h3>
+            <button class="modal-close" onclick="closeDeleteContractConfirmModal()">&times;</button>
+        </div>
+        <div style="padding: 1rem 0; color: var(--text-secondary); font-size: 0.9rem;">
+            Are you sure you want to delete contract definition <strong id="delete-contract-target-id" style="color: var(--text-primary); font-family: var(--font-mono);"></strong>?
+        </div>
+        <form id="delete-contract-confirm-form" action="/contract-definitions/delete" method="POST">
+            <input type="hidden" name="id" id="delete-contract-confirm-input-id" value="">
+            <div class="modal-footer">
+                <button type="button" class="btn-secondary" onclick="closeDeleteContractConfirmModal()">Cancel</button>
+                <button type="submit" class="btn-primary" style="background: var(--status-terminated); box-shadow: none;">Delete Contract</button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <script>
+    function confirmDeleteContract(id) {
+        document.getElementById('delete-contract-target-id').innerText = id;
+        document.getElementById('delete-contract-confirm-input-id').value = id;
+        document.getElementById('delete-contract-confirm-modal').classList.add('active');
+    }
+
+    function closeDeleteContractConfirmModal() {
+        document.getElementById('delete-contract-confirm-modal').classList.remove('active');
+    }
+
     function openCreateContractModal() {
         document.getElementById('contract-modal-title').innerText = 'Create EDC Contract Definition';
         document.getElementById('form-contract-id').readOnly = false;
