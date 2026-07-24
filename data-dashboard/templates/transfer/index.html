@@ -1,136 +1,16 @@
 {{define "content"}}
-<style>
-    .ui-card {
-        background: var(--card-bg, #ffffff);
-        border-radius: 8px;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-        padding: 1.5rem;
-        margin-bottom: 2.5rem;
-    }
-    .section-header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        margin-bottom: 1.5rem;
-        padding-bottom: 1rem;
-        border-bottom: 1px solid var(--border-color, #e5e7eb);
-    }
-    .section-title-wrapper {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-    }
-    .icon-area {
-        width: 40px;
-        height: 40px;
-        border-radius: 8px;
-        background: var(--primary-light, #e0e7ff);
-        color: var(--primary-color, #4f46e5);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-    .section-title {
-        font-size: 1.25rem;
-        font-weight: 600;
-        color: var(--text-primary, #111827);
-        margin: 0;
-    }
-    .border-left-accent {
-        border-left: 4px solid var(--primary-color, #4f46e5);
-    }
-    .border-left-success {
-        border-left: 4px solid var(--success-color, #10b981);
-    }
-    
-    .data-table-wrapper {
-        border-radius: 8px;
-        overflow: hidden;
-        border: 1px solid var(--border-color, #e5e7eb);
-        background: var(--bg-surface, #ffffff);
-    }
-    .data-table {
-        width: 100%;
-        border-collapse: collapse;
-        text-align: left;
-    }
-    .data-table th, .data-table td {
-        padding: 1rem 1.25rem;
-    }
-    .data-table th {
-        background: var(--table-header-bg, #f9fafb);
-        font-weight: 600;
-        color: var(--text-secondary, #4b5563);
-        font-size: 0.875rem;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-        border-bottom: 1px solid var(--border-color, #e5e7eb);
-    }
-    .data-table tbody tr {
-        border-bottom: 1px solid var(--border-color, #e5e7eb);
-        transition: background-color 0.15s ease;
-    }
-    .data-table tbody tr:nth-child(even) {
-        background-color: var(--table-row-even, #f9fafb);
-    }
-    .data-table tbody tr:hover {
-        background-color: var(--table-row-hover, #f3f4f6);
-    }
-    .data-table tbody tr:last-child {
-        border-bottom: none;
-    }
-    
-    .code-snippet {
-        font-family: var(--font-mono, monospace);
-        background: var(--code-bg, #f3f4f6);
-        color: var(--code-text, #1f2937);
-        padding: 0.2rem 0.4rem;
-        border-radius: 4px;
-        font-size: 0.875rem;
-        border: 1px solid var(--border-color, #e5e7eb);
-    }
-    
-    .truncate-id {
-        max-width: 160px;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        display: inline-block;
-        vertical-align: middle;
-    }
-
-    .empty-state {
-        text-align: center;
-        padding: 3.5rem 1rem;
-    }
-    .empty-state-icon {
-        color: var(--text-muted, #9ca3af);
-        margin-bottom: 1rem;
-        display: flex;
-        justify-content: center;
-    }
-    .empty-state-text {
-        color: var(--text-secondary, #4b5563);
-        margin-bottom: 1.5rem;
-        font-size: 1rem;
-    }
-
-    .modal-divider {
-        height: 1px;
-        background: var(--border-color, #e5e7eb);
-        margin: 1.5rem 0;
-    }
-</style>
-
 <div class="transfers-agreements-view">
     <!-- Section 1: Active Contract Agreements -->
-    <div class="ui-card border-left-accent">
-        <div class="section-header">
-            <div class="section-title-wrapper">
-                <div class="icon-area">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+    <div class="ui-card" style="margin-bottom: 2rem; border-left: 4px solid var(--accent-primary);">
+        <div class="card-header" style="padding-bottom: 0.85rem; border-bottom: 1px solid var(--border-color); margin-bottom: 1rem;">
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <div style="width: 36px; height: 36px; border-radius: var(--radius-sm); background: rgba(56, 189, 248, 0.12); color: var(--accent-primary); display: flex; align-items: center; justify-content: center;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
                 </div>
-                <h2 class="section-title">Active Contract Agreements</h2>
+                <div>
+                    <h2 style="font-size: 1.15rem; font-weight: 700; color: var(--text-primary); margin: 0;">Active Contract Agreements</h2>
+                    <span style="font-size: 0.75rem; color: var(--text-muted);">Legally binding agreements ready for data transfer initiation</span>
+                </div>
             </div>
             <span class="status-badge status-AGREED">READY FOR TRANSFER</span>
         </div>
@@ -140,7 +20,7 @@
                 <thead>
                     <tr>
                         <th>Agreement ID</th>
-                        <th>Counter-Party</th>
+                        <th>Counter-Party DSP Endpoint</th>
                         <th>State</th>
                         <th>Created At</th>
                         <th style="text-align: right;">Action</th>
@@ -149,24 +29,21 @@
                 <tbody>
                     {{range .Negotiations}}
                     <tr>
-                        <td><span class="code-snippet truncate-id" title="{{.ID}}">{{.ID}}</span></td>
-                        <td><span class="code-snippet truncate-id" title="{{.CounterParty}}">{{.CounterParty}}</span></td>
+                        <td><span class="code-snippet" title="{{.ID}}">{{.ID}}</span></td>
+                        <td style="font-family: var(--font-mono); font-size: 0.82rem; color: var(--text-secondary);">{{.CounterParty}}</td>
                         <td><span class="status-badge status-{{.State}}">{{.State}}</span></td>
-                        <td style="color: var(--text-secondary, #4b5563); font-size: 0.875rem;">{{.CreatedAt.Format "15:04:05 2006-01-02"}}</td>
+                        <td style="color: var(--text-muted); font-size: 0.8rem; font-family: var(--font-mono);">{{.CreatedAt.Format "15:04:05 2006-01-02"}}</td>
                         <td style="text-align: right;">
-                            <button class="btn-primary" onclick="openInitiateTransferModal('{{.ID}}')" style="font-size: 0.875rem; padding: 0.5rem 1rem;">Initiate Transfer &rarr;</button>
+                            <button class="btn-primary" onclick="openInitiateTransferModal('{{.ID}}')" style="font-size: 0.8rem; padding: 0.35rem 0.85rem;">Initiate Transfer &rarr;</button>
                         </td>
                     </tr>
                     {{else}}
                     <tr>
-                        <td colspan="5">
-                            <div class="empty-state">
-                                <div class="empty-state-icon">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
-                                </div>
-                                <p class="empty-state-text">No active contract agreements. Negotiate an asset from the Federated Catalog first.</p>
-                                <a href="/catalog" class="btn-secondary" style="text-decoration: none; display: inline-block;">Browse Catalog</a>
-                            </div>
+                        <td colspan="5" style="text-align: center; color: var(--text-muted); padding: 3rem;">
+                            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="color: var(--text-muted); margin-bottom: 0.5rem; display: block; margin-left: auto; margin-right: auto;">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                            </svg>
+                            No active contract agreements.<br>Query the <strong>Federated Catalog</strong> and negotiate a dataset to issue your first agreement.
                         </td>
                     </tr>
                     {{end}}
@@ -175,14 +52,17 @@
         </div>
     </div>
 
-    <!-- Section 2: Transfer History & Live Monitoring -->
-    <div class="ui-card border-left-success">
-        <div class="section-header">
-            <div class="section-title-wrapper">
-                <div class="icon-area" style="background: var(--success-light, #d1fae5); color: var(--success-color, #10b981);">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="2"></circle><path d="M16.24 7.76a6 6 0 0 1 0 8.49m-8.48-.01a6 6 0 0 1 0-8.49m11.31-2.82a10 10 0 0 1 0 14.14m-14.14 0a10 10 0 0 1 0-14.14"></path></svg>
+    <!-- Section 2: Data Plane Transfer History -->
+    <div class="ui-card" style="border-left: 4px solid var(--status-started);">
+        <div class="card-header" style="padding-bottom: 0.85rem; border-bottom: 1px solid var(--border-color); margin-bottom: 1rem;">
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <div style="width: 36px; height: 36px; border-radius: var(--radius-sm); background: rgba(52, 211, 153, 0.12); color: var(--status-started); display: flex; align-items: center; justify-content: center;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
                 </div>
-                <h2 class="section-title">Data Plane Transfer History</h2>
+                <div>
+                    <h2 style="font-size: 1.15rem; font-weight: 700; color: var(--text-primary); margin: 0;">Data Plane Transfer History</h2>
+                    <span style="font-size: 0.75rem; color: var(--text-muted);">Real-time stream telemetry and ingress/egress execution logs</span>
+                </div>
             </div>
             <span class="status-badge status-STARTED">LIVE PIPELINES</span>
         </div>
@@ -201,21 +81,19 @@
                 <tbody id="transfers-table-body">
                     {{range .Transfers}}
                     <tr>
-                        <td><span class="code-snippet truncate-id" title="{{.ID}}">{{.ID}}</span></td>
-                        <td><span class="code-snippet truncate-id" title="{{.ContractAgreementID}}">{{.ContractAgreementID}}</span></td>
-                        <td><span class="code-snippet">{{.AssetID}}</span></td>
-                        <td><span class="code-snippet">{{.DataDestination.Type}}</span></td>
+                        <td><span class="code-snippet" title="{{.ID}}">{{.ID}}</span></td>
+                        <td style="font-family: var(--font-mono); font-size: 0.82rem; color: var(--text-secondary);"><span class="code-snippet" title="{{.ContractAgreementID}}">{{.ContractAgreementID}}</span></td>
+                        <td style="font-family: var(--font-mono); font-size: 0.82rem; color: var(--accent-primary);">{{.AssetID}}</td>
+                        <td><span class="status-badge status-AGREED">{{.DataDestination.Type}}</span></td>
                         <td><span class="status-badge status-{{.State}}">{{.State}}</span></td>
                     </tr>
                     {{else}}
                     <tr>
-                        <td colspan="5">
-                            <div class="empty-state">
-                                <div class="empty-state-icon">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="21 8 21 21 3 21 3 8"></polyline><rect x="1" y="3" width="22" height="5"></rect><line x1="10" y1="12" x2="14" y2="12"></line></svg>
-                                </div>
-                                <p class="empty-state-text">No active or past data transfers recorded.</p>
-                            </div>
+                        <td colspan="5" style="text-align: center; color: var(--text-muted); padding: 3rem;">
+                            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="color: var(--text-muted); margin-bottom: 0.5rem; display: block; margin-left: auto; margin-right: auto;">
+                                <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+                            </svg>
+                            No active or past data transfers recorded.
                         </td>
                     </tr>
                     {{end}}
@@ -228,60 +106,56 @@
 <!-- Modal: Initiate Data Transfer -->
 <div class="modal-backdrop" id="transfer-modal">
     <div class="modal-dialog">
-        <div class="modal-header" style="border-bottom: 1px solid var(--border-color, #e5e7eb); padding: 1.5rem; display: flex; justify-content: space-between; align-items: center;">
-            <h3 class="modal-title" style="margin: 0; font-size: 1.25rem; font-weight: 600; color: var(--text-primary, #111827);">Initiate Data Transfer Stream</h3>
-            <button type="button" class="modal-close" onclick="closeInitiateTransferModal()" style="background: transparent; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-muted, #9ca3af);">&times;</button>
+        <div class="modal-header">
+            <h3 class="modal-title">Initiate Data Transfer Stream</h3>
+            <button class="modal-close" onclick="closeInitiateTransferModal()">&times;</button>
         </div>
 
         <form id="transfer-form" onsubmit="submitTransfer(event)">
             <input type="hidden" id="target-contract-id" name="contractId">
 
-            <div style="padding: 1.5rem;">
-                <div class="form-group" style="margin-bottom: 1rem;">
-                    <label class="form-label" style="display: block; margin-bottom: 0.5rem; font-weight: 500; color: var(--text-secondary, #4b5563);">Asset ID to Pull <span style="color: var(--danger-color, #ef4444);">*</span></label>
-                    <input type="text" id="target-asset-id" name="assetId" class="form-control" style="width: 100%; padding: 0.5rem; border: 1px solid var(--border-color, #e5e7eb); border-radius: 4px;" placeholder="e.g. asset-01-sensor-data" value="asset-01-sensor-data" required>
+            <div class="form-group">
+                <label class="form-label">Asset ID to Pull *</label>
+                <input type="text" id="target-asset-id" name="assetId" class="form-control" placeholder="e.g. asset-01-sensor-data" value="asset-01-sensor-data" required>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Provider DSP Endpoint *</label>
+                <input type="text" id="target-counter-party" name="counterPartyAddress" class="form-control" placeholder="http://provider-connector:8282/api/v1/dsp" value="http://provider-connector:8282/api/v1/dsp" required>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Destination Type *</label>
+                <select id="dest-type-select" name="destType" class="form-control" onchange="toggleTransferDestFields(this.value)">
+                    <option value="HttpProxy">HTTP Pull Stream (Consumer Endpoint / Proxy)</option>
+                    <option value="AmazonS3">AmazonS3 Bucket Push</option>
+                    <option value="AzureStorage">Azure Blob Storage Push</option>
+                </select>
+            </div>
+
+            <div id="transfer-http-dest">
+                <div class="form-group">
+                    <label class="form-label">Consumer Data Plane Endpoint</label>
+                    <input type="text" id="dest-url" class="form-control" placeholder="http://consumer-data-plane:8092/pull" value="http://consumer-data-plane:8092/pull">
                 </div>
+            </div>
 
-                <div class="form-group" style="margin-bottom: 1rem;">
-                    <label class="form-label" style="display: block; margin-bottom: 0.5rem; font-weight: 500; color: var(--text-secondary, #4b5563);">Provider DSP Endpoint <span style="color: var(--danger-color, #ef4444);">*</span></label>
-                    <input type="text" id="target-counter-party" name="counterPartyAddress" class="form-control" style="width: 100%; padding: 0.5rem; border: 1px solid var(--border-color, #e5e7eb); border-radius: 4px;" placeholder="http://provider-connector:8282/api/v1/dsp" value="http://provider-connector:8282/api/v1/dsp" required>
-                </div>
-
-                <div class="modal-divider"></div>
-
-                <div class="form-group" style="margin-bottom: 1rem;">
-                    <label class="form-label" style="display: block; margin-bottom: 0.5rem; font-weight: 500; color: var(--text-secondary, #4b5563);">Destination Type <span style="color: var(--danger-color, #ef4444);">*</span></label>
-                    <select id="dest-type-select" name="destType" class="form-control" style="width: 100%; padding: 0.5rem; border: 1px solid var(--border-color, #e5e7eb); border-radius: 4px;" onchange="toggleTransferDestFields(this.value)">
-                        <option value="HttpProxy">HTTP Pull Stream (Consumer Endpoint / Proxy)</option>
-                        <option value="AmazonS3">AmazonS3 Bucket Push</option>
-                        <option value="AzureStorage">Azure Blob Storage Push</option>
-                    </select>
-                </div>
-
-                <div id="transfer-http-dest">
+            <div id="transfer-s3-dest" style="display: none;">
+                <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 0.75rem;">
                     <div class="form-group">
-                        <label class="form-label" style="display: block; margin-bottom: 0.5rem; font-weight: 500; color: var(--text-secondary, #4b5563);">Consumer Data Plane Endpoint</label>
-                        <input type="text" id="dest-url" class="form-control" style="width: 100%; padding: 0.5rem; border: 1px solid var(--border-color, #e5e7eb); border-radius: 4px;" placeholder="http://consumer-data-plane:8092/pull" value="http://consumer-data-plane:8092/pull">
+                        <label class="form-label">Destination S3 Bucket</label>
+                        <input type="text" id="dest-bucket" class="form-control" placeholder="consumer-ingress-bucket">
                     </div>
-                </div>
-
-                <div id="transfer-s3-dest" style="display: none;">
-                    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1rem;">
-                        <div class="form-group">
-                            <label class="form-label" style="display: block; margin-bottom: 0.5rem; font-weight: 500; color: var(--text-secondary, #4b5563);">Destination S3 Bucket</label>
-                            <input type="text" id="dest-bucket" class="form-control" style="width: 100%; padding: 0.5rem; border: 1px solid var(--border-color, #e5e7eb); border-radius: 4px;" placeholder="consumer-ingress-bucket">
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label" style="display: block; margin-bottom: 0.5rem; font-weight: 500; color: var(--text-secondary, #4b5563);">Region</label>
-                            <input type="text" id="dest-region" class="form-control" style="width: 100%; padding: 0.5rem; border: 1px solid var(--border-color, #e5e7eb); border-radius: 4px;" placeholder="eu-west-1">
-                        </div>
+                    <div class="form-group">
+                        <label class="form-label">Region</label>
+                        <input type="text" id="dest-region" class="form-control" placeholder="eu-west-1">
                     </div>
                 </div>
             </div>
 
-            <div class="modal-footer" style="padding: 1.5rem; background: var(--table-header-bg, #f9fafb); border-top: 1px solid var(--border-color, #e5e7eb); border-radius: 0 0 8px 8px; display: flex; justify-content: flex-end; gap: 1rem;">
-                <button type="button" class="btn-secondary" onclick="closeInitiateTransferModal()" style="padding: 0.5rem 1rem;">Cancel</button>
-                <button type="submit" class="btn-primary" style="padding: 0.5rem 1rem;">Start Transfer Stream &rarr;</button>
+            <div class="modal-footer">
+                <button type="button" class="btn-secondary" onclick="closeInitiateTransferModal()">Cancel</button>
+                <button type="submit" class="btn-primary">Start Transfer Stream</button>
             </div>
         </form>
     </div>
