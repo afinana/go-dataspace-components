@@ -1,11 +1,20 @@
 [
   {
-    "id": "local-connector-01",
-    "name": "Sovereign Node Alpha (Local)",
+    "id": "provider-edc",
+    "name": "Provider EDC (Local)",
     "controlPlaneUrl": "http://control-plane:8081",
     "catalogUrl": "http://control-plane:8081",
     "dataPlaneUrl": "http://data-plane:8082",
     "identityHubUrl": "http://identity-hub:8080",
     "authKey": "provider-admin-secret-key-12345"
+  },
+  {
+    "id": "consumer-edc",
+    "name": "Consumer EDC (Local)",
+    "controlPlaneUrl": "http://control-plane:8091",
+    "catalogUrl": "http://control-plane:8091",
+    "dataPlaneUrl": "http://data-plane:8092",
+    "identityHubUrl": "http://identity-hub:8090",
+    "authKey": "consumer-admin-secret-key-67890"
   }
 ]

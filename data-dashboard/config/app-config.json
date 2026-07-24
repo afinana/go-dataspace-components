@@ -2,36 +2,42 @@
   "appTitle": "EDC Sovereign Data Dashboard",
   "healthCheckIntervalSeconds": 30,
   "initialTheme": "dark",
-  "enableUserConfig": false,
+  "enableUserConfig": true,
   "menuItems": [
     {
-      "text": "Overview",
+      "text": "Home",
       "icon": "home",
       "route": "/",
       "description": "System status, metrics and connectivity health check overview."
     },
     {
-      "text": "Asset Catalog",
+      "text": "Assets",
       "icon": "folder",
       "route": "/assets",
-      "description": "Register, inspect and update localized DCAT-AP dataset distributions."
+      "description": "Register, inspect and update localized EDC assets and data addresses."
+    },
+    {
+      "text": "Policies",
+      "icon": "shield",
+      "route": "/policies",
+      "description": "Manage ODRL rules, permissions, obligations, and access constraints."
+    },
+    {
+      "text": "Contract Definitions",
+      "icon": "file-text",
+      "route": "/contract-definitions",
+      "description": "Link assets with access and contract policies for catalog exposure."
     },
     {
       "text": "Federated Catalog",
       "icon": "search",
       "route": "/catalog",
-      "description": "Browse and query remote datasets from peer connectors in the dataspace."
+      "description": "Browse and query remote datasets from peer connectors via DSP."
     },
     {
-      "text": "Policy Definitions",
-      "icon": "shield",
-      "route": "/policies",
-      "description": "Manage ODRL rules, usage conditions, constraints and contract offers."
-    },
-    {
-      "text": "Negotiations & Transfers",
+      "text": "Transfers & Agreements",
       "icon": "swap",
-      "route": "/transfer",
+      "route": "/transfers",
       "description": "Monitor active contract negotiations and execute data plane transfer streams."
     }
   ]

@@ -24,7 +24,7 @@ check_status() {
 }
 
 # 1. Test Identity Hub VC Issuance and Querying
-echo -e "${BLUE}>>> [1/5] Testing Identity Hub (did:web / Decentralized Claims)...${NC}"
+echo -e "${BLUE}>>> [1/6] Testing Identity Hub (did:web / Decentralized Claims)...${NC}"
 echo "Registering a new Verifiable Credential..."
 curl -s -X POST -H "Content-Type: application/json" -d '{
   "id": "vc-test-membership",
@@ -42,13 +42,13 @@ check_status
 echo ""
 
 # 2. Test Control Plane DCAT Catalog API
-echo -e "${BLUE}>>> [2/5] Querying W3C DCAT-AP Catalog from Control Plane (port 8081)...${NC}"
+echo -e "${BLUE}>>> [2/6] Querying W3C DCAT-AP Catalog from Control Plane (port 8081)...${NC}"
 curl -s http://localhost:8081/catalog | grep -q "catalog-main"
 check_status
 echo ""
 
 # 3. Test Control Plane DSP Contract Negotiation
-echo -e "${BLUE}>>> [3/5] Triggering DSP Contract Negotiation Handshake...${NC}"
+echo -e "${BLUE}>>> [3/6] Triggering DSP Contract Negotiation Handshake...${NC}"
 curl -s -X POST -H "Content-Type: application/json" -d '{
   "counterPartyAddress": "http://control-plane:8081",
   "counterPartyId": "did:web:provider",
@@ -61,7 +61,7 @@ check_status
 echo ""
 
 # 4. Test Data Plane Control Signaling
-echo -e "${BLUE}>>> [4/5] Initiating Data Flow Signaling on Data Plane...${NC}"
+echo -e "${BLUE}>>> [4/6] Initiating Data Flow Signaling on Data Plane...${NC}"
 curl -s -X POST -H "Content-Type: application/json" -d '{
   "id": "flow-process-test",
   "contractAgreementId": "agreement-test-99",
@@ -84,8 +84,16 @@ curl -s -X POST -H "Content-Type: application/json" -d '{
 check_status
 echo ""
 
-# 5. Run Go Integration client-tester suite
-echo -e "${BLUE}>>> [5/5] Executing Compiled Client Integration Tester...${NC}"
+# 5. Test Data Dashboard Management UI & Configs
+echo -e "${BLUE}>>> [5/6] Testing Data Dashboard UI and Config Endpoints (port 8084)...${NC}"
+curl -s http://localhost:8084/ | grep -q "EDC"
+check_status
+curl -s http://localhost:8084/public/config/app-config.json | grep -q "healthCheckIntervalSeconds"
+check_status
+echo ""
+
+# 6. Run Go Integration client-tester suite
+echo -e "${BLUE}>>> [6/6] Executing Compiled Client Integration Tester...${NC}"
 go run cmd/client-tester/main.go
 check_status
 
