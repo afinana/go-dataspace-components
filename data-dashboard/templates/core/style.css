@@ -13,10 +13,10 @@
     --radius-md: 10px;
     --radius-lg: 14px;
     --radius-xl: 18px;
-    --shadow-sm: 0 1px 3px rgba(0,0,0,0.12);
-    --shadow-md: 0 4px 16px rgba(0,0,0,0.18);
-    --shadow-lg: 0 12px 32px rgba(0,0,0,0.28);
-    --shadow-glow: 0 0 24px var(--accent-glow);
+    --shadow-sm: none;
+    --shadow-md: none;
+    --shadow-lg: none;
+    --shadow-glow: none;
 }
 
 /* ---------- DARK THEME ---------- */
@@ -270,7 +270,6 @@ body {
 .menu-item:hover {
     background-color: var(--bg-card-hover);
     color: var(--text-primary);
-    transform: translateX(4px);
 }
 
 .menu-item.active {
@@ -569,13 +568,13 @@ body {
 }
 
 .btn-primary:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-glow), var(--shadow-md);
+    background: var(--accent-gradient);
+    filter: brightness(1.1);
 }
 
 .btn-primary:hover::after { opacity: 1; }
 
-.btn-primary:active { transform: translateY(0); }
+.btn-primary:active { opacity: 0.9; }
 
 .btn-secondary {
     background: var(--bg-card);
@@ -613,28 +612,15 @@ body {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    transition: all var(--transition-normal);
+    transition: background-color var(--transition-fast), border-color var(--transition-fast);
     position: relative;
     overflow: hidden;
 }
 
-.ui-card::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(135deg, var(--accent-glow) 0%, transparent 40%);
-    opacity: 0;
-    transition: opacity var(--transition-normal);
-    pointer-events: none;
-}
-
 .ui-card:hover {
     border-color: var(--border-highlight);
-    transform: translateY(-3px);
-    box-shadow: var(--shadow-lg);
+    background-color: var(--bg-card-hover);
 }
-
-.ui-card:hover::before { opacity: 1; }
 
 /* Fixed-height card variant for management grids */
 .catalog-card-fixed {
@@ -785,20 +771,13 @@ body {
 
 .modal-dialog {
     background: var(--bg-surface);
-    border: 1px solid var(--border-color);
+    border: 1px solid var(--border-highlight);
     border-radius: var(--radius-xl);
     width: 100%;
     max-width: 560px;
     padding: 1.75rem;
-    box-shadow: 0 24px 48px rgba(0,0,0,0.4);
     max-height: 88vh;
     overflow-y: auto;
-    transform: translateY(12px);
-    transition: transform var(--transition-normal);
-}
-
-.modal-backdrop.active .modal-dialog {
-    transform: translateY(0);
 }
 
 .modal-header {
