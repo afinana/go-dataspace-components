@@ -11,3 +11,4 @@ This directory contains the Architecture Decision Records (ADRs) for the Soverei
 *   [ADR-0005: Modular Terraform Architecture and Environment Configuration](file:///home/afinana/development/github/go-dataspace-components/docs/adr/0005-modular-terraform-with-env-variables.md)
 *   [ADR-0006: High-Performance L1 Key-Value Store Caching Layer](file:///home/afinana/development/github/go-dataspace-components/docs/adr/0006-l1-kv-store-caching-layer.md)
 *   [ADR-0007: EDC Data Dashboard Control Plane Wrapper & Workflow Management](file:///home/afinana/development/github/go-dataspace-components/docs/adr/0007-edc-dashboard-control-plane-management-ui.md)
+*   [ADR-0008: Dashboard Unified Flat Card Design System, Lifecycle Modals, and DSP Fallback Handling](file:///home/afinana/development/github/go-dataspace-components/docs/adr/0008-dashboard-unified-card-design-system-and-delete-safeguards.md)
