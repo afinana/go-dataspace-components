@@ -2,6 +2,10 @@
 # Sovereign Dataspace Connector - E2E Integration Test Suite
 set -e
 
+# Target workspace directory context
+PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$PROJECT_DIR"
+
 # Color definitions
 RED='\033[0;31m'
 GREEN='\033[0;32m'

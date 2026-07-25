@@ -1,4 +1,4 @@
-.PHONY: all fmt fmt-check lint arch-check test coverage security terraform-check quality-gate setup-hooks
+.PHONY: all fmt fmt-check lint arch-check test coverage security terraform-check quality-gate setup-hooks start test-dataspace bruno-tests
 
 LINT_BIN ?= $(shell which golangci-lint 2>/dev/null || echo "$(HOME)/go/bin/golangci-lint")
 
@@ -66,3 +66,19 @@ quality-gate: fmt-check arch-check lint test coverage terraform-check
 setup-hooks:
 	@chmod +x scripts/setup_hooks.sh
 	@./scripts/setup_hooks.sh
+
+## Build and launch container stack
+start:
+	@chmod +x scripts/start.sh
+	@./scripts/start.sh
+
+## Run shell integration test suite
+test-dataspace:
+	@chmod +x scripts/test-dataspace.sh
+	@./scripts/test-dataspace.sh
+
+## Run Bruno integration test collection
+bruno-tests:
+	@chmod +x scripts/run-bruno-tests.sh
+	@./scripts/run-bruno-tests.sh
+

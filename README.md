@@ -19,7 +19,12 @@ A production-ready, idiomatic Go monorepo implementing a custom Sovereign Datasp
 ```
 ├── go.mod
 ├── docker-compose.yml
-├── start.sh                   # Automation runner (build, test, deploy)
+├── scripts/                   # Shell scripts for setup, testing, and automation
+│   ├── start.sh               # Automation runner (build, test, deploy)
+│   ├── test-dataspace.sh      # E2E integration test suite
+│   ├── run-bruno-tests.sh     # Bruno API collection test runner
+│   ├── check_coverage.sh      # Code coverage quality gate check
+│   └── setup_hooks.sh         # Git pre-commit hook installer
 ├── cmd/                       # Decoupled service binary entrypoints
 │   ├── identity-hub/          # Port 8080
 │   ├── control-plane/         # Port 8081
@@ -88,7 +93,7 @@ sequenceDiagram
 ### Quick Start (Automated)
 Run the provided bootstrap script from the project root:
 ```bash
-./start.sh
+./scripts/start.sh
 ```
 This script runs the local package unit tests, validates compilation of all service binaries, cleans old container instances, and builds the stack in detached mode.
 
@@ -153,7 +158,7 @@ go run cmd/client-tester/main.go
 ### C. Shell Integration Suite
 Runs automated raw `curl` commands verifying identity querying, DCAT discovery, negotiation handshakes, data plane signaling, and proxy egress validation:
 ```bash
-./test-dataspace.sh
+./scripts/test-dataspace.sh
 ```
 
 ---
@@ -165,7 +170,7 @@ This project provides a full [Bruno](https://www.usebruno.com/) collection in th
 ### Running Bruno Tests via CLI (Automated)
 An orchestrator script is provided to compile, launch the containers, check for dependencies, and execute the entire Bruno integration test suite in one command:
 ```bash
-./run-bruno-tests.sh
+./scripts/run-bruno-tests.sh
 ```
 This script automatically runs the collection using the local environment and outputs a detailed execution report with a 100% pass rate.
 

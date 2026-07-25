@@ -4,7 +4,7 @@
 set -e
 
 # Target workspace directory context
-PROJECT_DIR="/home/afinana/development/github/go-dataspace-components"
+PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$PROJECT_DIR"
 
 echo "================================================================="
@@ -14,7 +14,7 @@ echo ""
 
 # 1. Build and boot the stack with latest endpoints
 echo ">>> [1/3] Building and starting local container stack..."
-./start.sh
+./scripts/start.sh
 
 # 2. Wait for health checks
 echo ">>> [2/3] Waiting for services to become healthy..."

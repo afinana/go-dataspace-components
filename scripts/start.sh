@@ -3,7 +3,7 @@
 set -e
 
 # Target workspace directory context
-PROJECT_DIR="/home/afinana/development/github/go-dataspace-components"
+PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$PROJECT_DIR"
 
 echo "================================================================="
