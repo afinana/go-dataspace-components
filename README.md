@@ -183,6 +183,17 @@ To run and inspect the requests inside the Bruno desktop application:
 
 ---
 
-## 9. License
+## 9. Architecture Decision Records (ADRs)
+
+Design choices and architectural decisions are tracked in [docs/adr/](file:///home/afinana/development/github/go-dataspace-components/docs/adr). Key decisions include:
+* [ADR-0001: Record Architecture Decisions](file:///home/afinana/development/github/go-dataspace-components/docs/adr/0001-record-architecture-decisions.md)
+* [ADR-0002: Hexagonal Architecture and Package Boundaries](file:///home/afinana/development/github/go-dataspace-components/docs/adr/0002-hexagonal-architecture-and-package-boundaries.md)
+* [ADR-0004: Constant Memory Data Plane Egress Streaming](file:///home/afinana/development/github/go-dataspace-components/docs/adr/0004-constant-memory-data-plane-egress-streaming.md)
+* [ADR-0009: Centralized Script Organization & Path Decoupling](file:///home/afinana/development/github/go-dataspace-components/docs/adr/0009-centralized-script-organization-and-path-decoupling.md)
+
+---
+
+## 10. License
 
 This repository is licensed under the **GNU General Public License v2.0 (GPL-2.0)**. See the [LICENSE](file:///home/afinana/development/github/go-dataspace-components/LICENSE) file for the full terms and conditions.
+
