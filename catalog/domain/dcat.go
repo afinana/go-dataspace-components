@@ -32,14 +32,14 @@ type Dataset struct {
 
 // Distribution represents a concrete representation of a Dataset (e.g., REST API, File stream).
 type Distribution struct {
-	ID             string       `json:"id"`
-	Type           string       `json:"type"` // e.g. "dcat:Distribution"
-	Title          string       `json:"title"`
-	Format         string       `json:"format"` // e.g. "application/json", "application/octet-stream"
-	AccessURL      string       `json:"accessUrl"`
-	DownloadURL    string       `json:"downloadUrl,omitempty"`
-	DataServiceRef string       `json:"dataService,omitempty"` // ID references to a DataService if applicable
-	Policy         *ODRLPolicy  `json:"policy,omitempty"`       // ODRL usage terms/contracts linked to this distribution
+	ID             string      `json:"id"`
+	Type           string      `json:"type"` // e.g. "dcat:Distribution"
+	Title          string      `json:"title"`
+	Format         string      `json:"format"` // e.g. "application/json", "application/octet-stream"
+	AccessURL      string      `json:"accessUrl"`
+	DownloadURL    string      `json:"downloadUrl,omitempty"`
+	DataServiceRef string      `json:"dataService,omitempty"` // ID references to a DataService if applicable
+	Policy         *ODRLPolicy `json:"policy,omitempty"`      // ODRL usage terms/contracts linked to this distribution
 }
 
 // DataService represents operations/endpoints providing access to datasets.
@@ -54,14 +54,14 @@ type DataService struct {
 
 // ODRLPolicy models Open Digital Rights Language policies attached to assets.
 type ODRLPolicy struct {
-	ID         string       `json:"id"`
-	Type       string       `json:"type"` // e.g. "odrl:Offer", "odrl:Agreement"
-	Target     string       `json:"target"`
-	Assigner   string       `json:"assigner,omitempty"`
-	Assignee   string       `json:"assignee,omitempty"`
-	Permission []Permission `json:"permission,omitempty"`
+	ID          string        `json:"id"`
+	Type        string        `json:"type"` // e.g. "odrl:Offer", "odrl:Agreement"
+	Target      string        `json:"target"`
+	Assigner    string        `json:"assigner,omitempty"`
+	Assignee    string        `json:"assignee,omitempty"`
+	Permission  []Permission  `json:"permission,omitempty"`
 	Prohibition []Prohibition `json:"prohibition,omitempty"`
-	Obligation  []Duty       `json:"obligation,omitempty"`
+	Obligation  []Duty        `json:"obligation,omitempty"`
 }
 
 type Permission struct {

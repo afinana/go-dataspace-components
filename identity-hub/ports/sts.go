@@ -30,12 +30,12 @@ func NewSecurityTokenService(participantDID string, keyID string, privateKey *rs
 
 // TokenClaims represents claims inside the Self-Issued ID Token.
 type TokenClaims struct {
-	Issuer    string `json:"iss"`
-	Subject   string `json:"sub"`
-	Audience  string `json:"aud"`
-	Expiry    int64  `json:"exp"`
-	IssuedAt  int64  `json:"iat"`
-	JWTID     string `json:"jti"`
+	Issuer   string `json:"iss"`
+	Subject  string `json:"sub"`
+	Audience string `json:"aud"`
+	Expiry   int64  `json:"exp"`
+	IssuedAt int64  `json:"iat"`
+	JWTID    string `json:"jti"`
 }
 
 // GenerateSelfIssuedToken generates and signs a short-lived Self-Issued JWT Token.
@@ -55,12 +55,12 @@ func (s *SecurityTokenService) GenerateSelfIssuedToken(audience string, duration
 	// 2. Build Payload Claims
 	now := time.Now()
 	claims := TokenClaims{
-		Issuer:    s.participantDID,
-		Subject:   s.participantDID,
-		Audience:  audience,
-		Expiry:    now.Add(duration).Unix(),
-		IssuedAt:  now.Unix(),
-		JWTID:     fmt.Sprintf("jti-%d", now.UnixNano()),
+		Issuer:   s.participantDID,
+		Subject:  s.participantDID,
+		Audience: audience,
+		Expiry:   now.Add(duration).Unix(),
+		IssuedAt: now.Unix(),
+		JWTID:    fmt.Sprintf("jti-%d", now.UnixNano()),
 	}
 
 	claimsJSON, err := json.Marshal(claims)

@@ -54,25 +54,25 @@ func (da *DataAddress) GetProperty(key string) string {
 
 // TransferProcess manages the state of a single transfer flow between two connectors.
 type TransferProcess struct {
-	ID                 string            `json:"id"`
-	ContractAgreementID string            `json:"contractAgreementId"`
-	CorrelationID      string            `json:"correlationId,omitempty"` // ID of the transfer on the peer side
-	AssetID            string            `json:"assetId"`
-	State              TransferState     `json:"state"`
-	DataDestination    DataAddress       `json:"dataDestination"`
-	DataSource         DataAddress       `json:"dataSource,omitempty"` // Available only on the provider side
-	ErrorDetail        string            `json:"errorDetail,omitempty"`
-	CreatedAt          time.Time         `json:"createdAt"`
-	UpdatedAt          time.Time         `json:"updatedAt"`
+	ID                  string        `json:"id"`
+	ContractAgreementID string        `json:"contractAgreementId"`
+	CorrelationID       string        `json:"correlationId,omitempty"` // ID of the transfer on the peer side
+	AssetID             string        `json:"assetId"`
+	State               TransferState `json:"state"`
+	DataDestination     DataAddress   `json:"dataDestination"`
+	DataSource          DataAddress   `json:"dataSource,omitempty"` // Available only on the provider side
+	ErrorDetail         string        `json:"errorDetail,omitempty"`
+	CreatedAt           time.Time     `json:"createdAt"`
+	UpdatedAt           time.Time     `json:"updatedAt"`
 }
 
 // DSP Protocol Messages mapping to domain structures
 
 // TransferStartMessage signals the start of the data transmission.
 type TransferStartMessage struct {
-	ID                 string      `json:"id"`
-	ProcessID          string      `json:"processId"`
-	DataPlaneAddress   string      `json:"dataPlaneAddress,omitempty"`
+	ID               string `json:"id"`
+	ProcessID        string `json:"processId"`
+	DataPlaneAddress string `json:"dataPlaneAddress,omitempty"`
 }
 
 // State Machine transition rules.

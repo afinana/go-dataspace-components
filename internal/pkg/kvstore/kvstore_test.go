@@ -1,8 +1,8 @@
 package kvstore
 
 import (
-	"context"
 	"bytes"
+	"context"
 	"testing"
 	"time"
 )

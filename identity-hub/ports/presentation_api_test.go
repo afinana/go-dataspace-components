@@ -79,9 +79,9 @@ func TestPresentationAPIHandler_DCPRoutes(t *testing.T) {
 
 	// 1. Ingest a credential
 	vc := domain.VerifiableCredential{
-		ID:           "test-vc-id",
-		Type:         []string{"VerifiableCredential", "XDataShareMembershipCredential"},
-		Issuer:       "did:web:sovereign-authority.org",
+		ID:     "test-vc-id",
+		Type:   []string{"VerifiableCredential", "XDataShareMembershipCredential"},
+		Issuer: "did:web:sovereign-authority.org",
 		CredentialSubject: map[string]any{
 			"holder": "did:web:local-connector",
 		},

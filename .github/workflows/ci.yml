@@ -1,0 +1,34 @@
+name: Fast Continuous Integration
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  fast-ci:
+    name: Quick CI Checks & Unit Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v5
+
+      - name: Set up Go
+        uses: actions/setup-go@v6
+        with:
+          go-version-file: 'go.mod'
+
+      - name: Check Formatting
+        run: |
+          if [ -n "$(gofmt -s -l .)" ]; then
+            echo "Unformatted Go files detected:"
+            gofmt -s -l .
+            exit 1
+          fi
+
+      - name: Verify Hexagonal Architecture Guardrail
+        run: go test -v architecture_test.go
+
+      - name: Run Core Domain & Use Case Tests
+        run: go test ./catalog/... ./control-plane/... ./data-dashboard/... ./data-plane/... ./identity-hub/... ./internal/...

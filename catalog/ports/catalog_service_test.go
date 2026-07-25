@@ -245,4 +245,3 @@ func TestPostgresCatalogStoreWithKVCache(t *testing.T) {
 		t.Errorf("unfulfilled expectations: %s", err)
 	}
 }
-

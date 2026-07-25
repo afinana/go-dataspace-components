@@ -149,14 +149,14 @@ func (s *DashboardServer) handleHome(w http.ResponseWriter, r *http.Request) {
 	creds, _ := s.client.GetCredentials(ctx)
 
 	stats := map[string]any{
-		"AssetsCount":        len(assets),
-		"PoliciesCount":      len(policies),
-		"ContractsCount":     len(contractDefs),
-		"NegotiationsCount":  len(negotiations),
-		"TransfersCount":     len(transfers),
-		"CredentialsCount":   len(creds),
-		"ActiveConnector":    s.client.Config(),
-		"Credentials":        creds,
+		"AssetsCount":       len(assets),
+		"PoliciesCount":     len(policies),
+		"ContractsCount":    len(contractDefs),
+		"NegotiationsCount": len(negotiations),
+		"TransfersCount":    len(transfers),
+		"CredentialsCount":  len(creds),
+		"ActiveConnector":   s.client.Config(),
+		"Credentials":       creds,
 	}
 
 	s.renderView(w, r, "Home", "home/index.html", stats)

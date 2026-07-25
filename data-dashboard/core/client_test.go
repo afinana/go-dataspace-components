@@ -9,10 +9,10 @@ func TestEdcClient_MockFallbacks(t *testing.T) {
 	cfg := &EdcConfig{
 		ID:              "test-node",
 		Name:            "Test Connector Node",
-		ControlPlaneURL: "http://unreachable-host:9999",
-		CatalogURL:      "http://unreachable-host:9999",
-		DataPlaneURL:    "http://unreachable-host:9999",
-		IdentityHubURL:  "http://unreachable-host:9999",
+		ControlPlaneURL: "http://127.0.0.1:9999",
+		CatalogURL:      "http://127.0.0.1:9999",
+		DataPlaneURL:    "http://127.0.0.1:9999",
+		IdentityHubURL:  "http://127.0.0.1:9999",
 		AuthKey:         "test-auth-key",
 	}
 
@@ -83,5 +83,29 @@ func TestEdcClient_MockFallbacks(t *testing.T) {
 	transferID, err := client.InitiateTransfer(ctx, "contract-01", "asset-01", "http://provider:8282/api/v1/dsp", DataAddress{Type: "HttpProxy"})
 	if err != nil || transferID == "" {
 		t.Errorf("InitiateTransfer failed: %v", err)
+	}
+
+	// Test Asset CRUD
+	asset := &AssetEntry{ID: "test-asset", Title: "Test Asset"}
+	_ = client.CreateAsset(ctx, asset)
+	_ = client.UpdateAsset(ctx, asset)
+	_ = client.DeleteAsset(ctx, "test-asset")
+
+	// Test Policy CRUD
+	policy := &PolicyDefinition{ID: "test-policy"}
+	_ = client.CreatePolicy(ctx, policy)
+	_ = client.UpdatePolicy(ctx, policy)
+	_ = client.DeletePolicy(ctx, "test-policy")
+
+	// Test Contract Definition CRUD
+	cd := &ContractDefinition{ID: "test-cd"}
+	_ = client.CreateContractDefinition(ctx, cd)
+	_ = client.UpdateContractDefinition(ctx, cd)
+	_ = client.DeleteContractDefinition(ctx, "test-cd")
+
+	// Test Credentials
+	creds, _ := client.GetCredentials(ctx)
+	if len(creds) == 0 {
+		t.Errorf("expected mock credentials")
 	}
 }

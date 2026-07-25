@@ -37,16 +37,16 @@ func (s NegotiationState) String() string {
 
 // ContractNegotiation tracks the state machine of a contract negotiation between a provider and consumer.
 type ContractNegotiation struct {
-	ID            string            `json:"id"`
-	CorrelationID string            `json:"correlationId"` // External ID used by the peer connector
-	CounterParty  string            `json:"counterParty"`  // Peer connector endpoint/DID
-	Type          NegotiationType   `json:"type"`          // PROVIDER or CONSUMER role
-	State         NegotiationState  `json:"state"`
-	ContractOffer *ContractOffer    `json:"contractOffer,omitempty"`
+	ID            string             `json:"id"`
+	CorrelationID string             `json:"correlationId"` // External ID used by the peer connector
+	CounterParty  string             `json:"counterParty"`  // Peer connector endpoint/DID
+	Type          NegotiationType    `json:"type"`          // PROVIDER or CONSUMER role
+	State         NegotiationState   `json:"state"`
+	ContractOffer *ContractOffer     `json:"contractOffer,omitempty"`
 	Agreement     *ContractAgreement `json:"agreement,omitempty"`
-	ErrorDetail   string            `json:"errorDetail,omitempty"`
-	CreatedAt     time.Time         `json:"createdAt"`
-	UpdatedAt     time.Time         `json:"updatedAt"`
+	ErrorDetail   string             `json:"errorDetail,omitempty"`
+	CreatedAt     time.Time          `json:"createdAt"`
+	UpdatedAt     time.Time          `json:"updatedAt"`
 }
 
 type NegotiationType string
@@ -80,9 +80,9 @@ type ContractAgreement struct {
 
 // ContractRequestMessage is the message sent to initiate or counter a negotiation.
 type ContractRequestMessage struct {
-	ID            string         `json:"id"`
-	CallbackAddress string       `json:"callbackAddress"`
-	Offer          *ContractOffer `json:"offer"`
+	ID              string         `json:"id"`
+	CallbackAddress string         `json:"callbackAddress"`
+	Offer           *ContractOffer `json:"offer"`
 }
 
 // ContractAgreementMessage is the message confirming the agreed contract terms.

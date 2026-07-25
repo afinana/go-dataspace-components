@@ -42,7 +42,7 @@ func (c *FileStreamController) Initiate(ctx context.Context, req *dp.DataFlowReq
 	go func() {
 		transferCtx := context.Background()
 		c.logger.Info("Starting file stream data transfer", "transferId", req.ID)
-		
+
 		err := c.executeTransfer(transferCtx, req)
 		if err != nil {
 			c.logger.Error("File stream transfer failed", "transferId", req.ID, "err", err)

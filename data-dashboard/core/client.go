@@ -194,11 +194,11 @@ func (c *EdcClient) CreateAsset(ctx context.Context, entry *AssetEntry) error {
 		},
 		"@id": entry.ID,
 		"properties": map[string]any{
-			"edc:name":         entry.Title,
-			"edc:version":      entry.Version,
-			"edc:contenttype":  entry.ContentType,
-			"edc:description":  entry.Description,
-			"edc:keywords":     entry.Keywords,
+			"edc:name":        entry.Title,
+			"edc:version":     entry.Version,
+			"edc:contenttype": entry.ContentType,
+			"edc:description": entry.Description,
+			"edc:keywords":    entry.Keywords,
 		},
 		"dataAddress": map[string]any{
 			"@type":            "DataAddress",
@@ -334,8 +334,8 @@ func (c *EdcClient) CreatePolicy(ctx context.Context, pol *PolicyDefinition) err
 		},
 		"@id": pol.ID,
 		"policy": map[string]any{
-			"@type":           "odrl:Set",
-			"odrl:permission": pol.Permissions,
+			"@type":            "odrl:Set",
+			"odrl:permission":  pol.Permissions,
 			"odrl:prohibition": pol.Prohibitions,
 			"odrl:obligation":  pol.Obligations,
 		},

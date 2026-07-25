@@ -38,7 +38,7 @@ func main() {
 		fmt.Printf("❌ Catalog request returned status: %d\n", resp.StatusCode)
 		os.Exit(1)
 	}
-	
+
 	var catalog map[string]any
 	if err := json.NewDecoder(resp.Body).Decode(&catalog); err != nil {
 		fmt.Printf("❌ Failed to decode catalog response: %v\n", err)
@@ -68,14 +68,14 @@ func main() {
 	defer resp.Body.Close()
 
 	var negResponse map[string]any
-	json.NewDecoder(resp.Body).Decode(&negResponse)
+	_ = json.NewDecoder(resp.Body).Decode(&negResponse)
 	fmt.Printf("✔ Contract Negotiation Handshake Complete. ID: %q, Status: %q\n", negResponse["id"], negResponse["status"])
 	fmt.Println()
 
 	// 3. Initiate Transfer Signaling with Data Plane (CP -> DP Call simulation)
 	fmt.Println(">>> [3/4] Registering Data Flow via Data Plane Signaling Listener...")
 	signalingURL := "http://localhost:8082/v1/dataflows/start"
-	
+
 	// Create signaling request containing HTTP reverse proxy mapping
 	flowReq := dp.DataFlowRequest{
 		ID:                  "transfer-process-01",
@@ -99,7 +99,7 @@ func main() {
 		},
 	}
 	flowBytes, _ := json.Marshal(flowReq)
-	
+
 	resp, err = client.Post(signalingURL, "application/json", bytes.NewBuffer(flowBytes))
 	if err != nil {
 		fmt.Printf("❌ Failed to trigger signaling: %v\n", err)
@@ -108,7 +108,7 @@ func main() {
 	defer resp.Body.Close()
 
 	var flowResp dp.DataFlowResponse
-	json.NewDecoder(resp.Body).Decode(&flowResp)
+	_ = json.NewDecoder(resp.Body).Decode(&flowResp)
 	if !flowResp.Success {
 		fmt.Printf("❌ Signaling rejected by Data Plane: %s\n", flowResp.ErrorDetail)
 		os.Exit(1)
@@ -119,7 +119,7 @@ func main() {
 	// 4. Query data via Data Plane API Reverse Proxy
 	fmt.Println(">>> [4/4] Fetching Data Assets via Data Plane API Proxy...")
 	proxyURL := "http://localhost:8082/public/get?consumer_query=valid"
-	
+
 	req, err := http.NewRequest(http.MethodGet, proxyURL, nil)
 	if err != nil {
 		fmt.Printf("❌ Failed to create request: %v\n", err)
@@ -149,7 +149,7 @@ func main() {
 	}
 
 	fmt.Println("✔ Egress Data successfully pulled through Proxy!")
-	
+
 	// Print a portion of the returned HTTP payload showing the injected headers
 	if headers, ok := backendResult["headers"].(map[string]any); ok {
 		fmt.Println("Backend Injected Request Headers detected:")

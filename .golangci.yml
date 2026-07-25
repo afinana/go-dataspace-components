@@ -1,0 +1,66 @@
+version: "2"
+run:
+  tests: true
+linters:
+  enable:
+    - bodyclose
+    - copyloopvar
+    - gocritic
+    - misspell
+  settings:
+    gocritic:
+      disabled-checks:
+        - hugeParam
+        - rangeValCopy
+        - paramTypeCombine
+        - unnamedResult
+        - httpNoBody
+        - equalFold
+        - emptyStringTest
+        - exitAfterDefer
+        - octalLiteral
+        - nestingReduce
+        - sprintfQuotedString
+        - ifElseChain
+      enabled-tags:
+        - diagnostic
+        - style
+        - performance
+  exclusions:
+    generated: lax
+    presets:
+      - comments
+      - common-false-positives
+      - legacy
+      - std-error-handling
+    rules:
+      - linters:
+          - errcheck
+          - gosec
+        path: _test\.go
+      - linters:
+          - gosec
+        text: 'G104:'
+      - linters:
+          - errcheck
+        text: 'Error return value of `\(\*encoding/json\.Encoder\)\.Encode` is not checked'
+      - linters:
+          - errcheck
+        text: 'Error return value of `destCloser` is not checked'
+      - linters:
+          - errcheck
+        text: 'Error return value is not checked'
+    paths:
+      - third_party$
+      - builtin$
+      - examples$
+issues:
+  max-issues-per-linter: 0
+  max-same-issues: 0
+formatters:
+  exclusions:
+    generated: lax
+    paths:
+      - third_party$
+      - builtin$
+      - examples$

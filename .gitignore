@@ -1,12 +1,50 @@
-# Go binaries
+# Binaries and build outputs
 bin/
+dist/
+tmp/
 *.exe
+*.exe?
+*.dll
+*.so
+*.dylib
 *.test
+
+# Test, coverage, and profiling reports
+*.out
+*.coverprofile
+coverage.html
 *.prof
+*.pprof
+
+# Environment variables and secrets
+.env
+.env.*
+!.env.example
+!.env.template
 
 # Terraform
 .terraform/
 *.tfstate
 *.tfstate.*
 .terraform.lock.hcl
-.env
+
+# IDEs and Editors
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+*.bak
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Logs
+*.log
+

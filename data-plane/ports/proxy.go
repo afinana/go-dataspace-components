@@ -13,16 +13,20 @@ import (
 	"sync"
 	"time"
 
-	dp "github.com/afinana/go-dataspace-components/data-plane/domain"
 	cp "github.com/afinana/go-dataspace-components/control-plane/domain"
+	dp "github.com/afinana/go-dataspace-components/data-plane/domain"
 )
+
+type contextKey string
+
+const flowContextKey contextKey = "flow"
 
 // APIProxyController implements dp.DataFlowController to reverse-proxy HTTP REST APIs.
 // It manages active proxy mappings securely by using temporary authorization tokens.
 type APIProxyController struct {
-	mu           sync.RWMutex
-	logger       *slog.Logger
-	dbStore      *PostgresDataFlowStore
+	mu      sync.RWMutex
+	logger  *slog.Logger
+	dbStore *PostgresDataFlowStore
 	// activeFlows maps token -> DataFlowRequest containing backend source endpoint and auth credentials
 	activeFlows  map[string]*dp.DataFlowRequest
 	reverseProxy *httputil.ReverseProxy
@@ -165,14 +169,14 @@ func (c *APIProxyController) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	// 3. Delegate to Go's standard ReverseProxy
 	// The request context is updated with the metadata details for proxying
-	ctx := context.WithValue(r.Context(), "flow", flowRequest)
+	ctx := context.WithValue(r.Context(), flowContextKey, flowRequest)
 	c.reverseProxy.ServeHTTP(w, r.WithContext(ctx))
 }
 
 // director dynamically mutates the request pointing it to the backend provider API.
 // It injects necessary authentication headers retrieved from the secure Control Plane configurations.
 func (c *APIProxyController) director(req *http.Request) {
-	flowVal := req.Context().Value("flow")
+	flowVal := req.Context().Value(flowContextKey)
 	if flowVal == nil {
 		req.URL = nil
 		return
@@ -205,7 +209,7 @@ func (c *APIProxyController) director(req *http.Request) {
 	req.URL.Scheme = targetURL.Scheme
 	req.URL.Host = targetURL.Host
 	req.URL.Path = singleJoiningSlash(targetURL.Path, relPath)
-	
+
 	// Keep or merge query parameters
 	if targetURL.RawQuery != "" {
 		if req.URL.RawQuery != "" {
@@ -239,8 +243,8 @@ func (c *APIProxyController) director(req *http.Request) {
 		}
 	}
 
-	c.logger.Debug("Proxied request successfully redirected", 
-		"destination", req.URL.String(), 
+	c.logger.Debug("Proxied request successfully redirected",
+		"destination", req.URL.String(),
 		"injectedHeader", authHeaderKey)
 }
 

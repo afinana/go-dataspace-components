@@ -35,14 +35,14 @@ type Metadata map[string]any
 
 // VerifiableCredential represents a signed assertion about a subject.
 type VerifiableCredential struct {
-	Context           []string       `json:"@context"`
-	ID                string         `json:"id,omitempty"`
-	Type              []string       `json:"type"`
-	Issuer            string         `json:"issuer"`
-	IssuanceDate      time.Time      `json:"issuanceDate"`
-	ExpirationDate    *time.Time     `json:"expirationDate,omitempty"`
-	CredentialSubject Metadata       `json:"credentialSubject"`
-	Proof             *Proof         `json:"proof,omitempty"`
+	Context           []string   `json:"@context"`
+	ID                string     `json:"id,omitempty"`
+	Type              []string   `json:"type"`
+	Issuer            string     `json:"issuer"`
+	IssuanceDate      time.Time  `json:"issuanceDate"`
+	ExpirationDate    *time.Time `json:"expirationDate,omitempty"`
+	CredentialSubject Metadata   `json:"credentialSubject"`
+	Proof             *Proof     `json:"proof,omitempty"`
 }
 
 // Proof contains cryptographic signature details for W3C credentials.
@@ -65,15 +65,15 @@ type VerifiablePresentation struct {
 
 // PresentationDefinition defines the query schema for credentials.
 type PresentationDefinition struct {
-	ID    string         `json:"id"`
+	ID    string            `json:"id"`
 	Input []InputDescriptor `json:"input_descriptors"`
 }
 
 // InputDescriptor specifies criteria for matching credentials.
 type InputDescriptor struct {
-	ID          string          `json:"id"`
-	Purpose     string          `json:"purpose,omitempty"`
-	Constraints *Constraints    `json:"constraints,omitempty"`
+	ID          string       `json:"id"`
+	Purpose     string       `json:"purpose,omitempty"`
+	Constraints *Constraints `json:"constraints,omitempty"`
 }
 
 // Constraints represent limits on fields or schema paths.

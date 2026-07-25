@@ -10,18 +10,18 @@ import (
 // DataFlowRequest defines the command payload dispatched from the Control Plane
 // to the Data Plane to trigger a data transfer process.
 type DataFlowRequest struct {
-	ID                     string         `json:"id"`
-	ContractAgreementID    string         `json:"contractAgreementId"`
-	SourceDataAddress      cp.DataAddress `json:"sourceDataAddress"`
-	DestinationDataAddress cp.DataAddress `json:"destinationDataAddress"`
+	ID                     string            `json:"id"`
+	ContractAgreementID    string            `json:"contractAgreementId"`
+	SourceDataAddress      cp.DataAddress    `json:"sourceDataAddress"`
+	DestinationDataAddress cp.DataAddress    `json:"destinationDataAddress"`
 	Properties             map[string]string `json:"properties,omitempty"`
 }
 
 // DataFlowResponse contains the result details of initiating a flow request.
 type DataFlowResponse struct {
-	Success      bool   `json:"success"`
-	DataPlaneID  string `json:"dataPlaneId"`
-	ErrorDetail  string `json:"errorDetail,omitempty"`
+	Success     bool   `json:"success"`
+	DataPlaneID string `json:"dataPlaneId"`
+	ErrorDetail string `json:"errorDetail,omitempty"`
 }
 
 // DataFlowController represents the core Port in the Data Plane.

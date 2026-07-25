@@ -186,7 +186,7 @@ func (h *PresentationAPIHandler) handlePublishDid(w http.ResponseWriter, r *http
 
 func (h *PresentationAPIHandler) handleGetAllCredentials(w http.ResponseWriter, r *http.Request) {
 	h.logger.Info("Received credentials list query")
-	
+
 	var list []domain.VerifiableCredential
 	var err error
 	if h.dbStore != nil {
@@ -229,30 +229,24 @@ func (h *PresentationAPIHandler) handleWildcardV1Alpha(w http.ResponseWriter, r 
 	h.logger.Info("Received Identity Hub v1alpha wildcard request", "method", r.Method, "path", r.URL.Path)
 
 	w.Header().Set("Content-Type", "application/json")
-	if r.Method == http.MethodPost {
+	switch r.Method {
+	case http.MethodPost:
 		w.Header().Set("Location", r.URL.Path+"/req-123")
 		w.WriteHeader(http.StatusOK)
 		json.NewEncoder(w).Encode(map[string]any{
-			"success": true, 
-			"@id": "entity-id-01",
-			"id": "entity-id-01",
-			"token": "mock-regenerated-token-xyz123",
+			"success": true,
+			"@id":     "entity-id-01",
+			"id":      "entity-id-01",
+			"token":   "mock-regenerated-token-xyz123",
 		})
-	} else if r.Method == http.MethodDelete {
+	case http.MethodDelete:
 		w.WriteHeader(http.StatusOK)
 		json.NewEncoder(w).Encode(map[string]any{"success": true})
-	} else {
+	default:
 		w.WriteHeader(http.StatusOK)
 		json.NewEncoder(w).Encode(map[string]any{
-			"success": true,
-			"id": "entity-id-01",
-			"state": "PUBLISHED",
-			"endpointProperties": []map[string]string{
-				{
-					"name": "access_token",
-					"value": "mock-token",
-				},
-			},
+			"status":  "OK",
+			"message": "v1alpha endpoint active",
 		})
 	}
 }
@@ -265,8 +259,8 @@ func (h *PresentationAPIHandler) handleWildcardAdminV1Alpha(w http.ResponseWrite
 		w.WriteHeader(http.StatusCreated)
 		json.NewEncoder(w).Encode(map[string]any{
 			"success": true,
-			"@id": "admin-entity-01",
-			"id": "admin-entity-01",
+			"@id":     "admin-entity-01",
+			"id":      "admin-entity-01",
 		})
 	} else {
 		w.WriteHeader(http.StatusOK)

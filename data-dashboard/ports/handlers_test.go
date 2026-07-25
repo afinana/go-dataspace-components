@@ -17,7 +17,7 @@ import (
 
 func setupTestServer(t *testing.T) (*DashboardServer, *http.ServeMux, string) {
 	logger := logging.InitLogger("error")
-	
+
 	tmpDir, err := os.MkdirTemp("", "dashboard-templates-test")
 	if err != nil {
 		t.Fatalf("failed to create temp dir: %v", err)
@@ -64,10 +64,10 @@ func setupTestServer(t *testing.T) (*DashboardServer, *http.ServeMux, string) {
 			{
 				ID:              "provider-edc",
 				Name:            "Provider Node",
-				ControlPlaneURL: "http://control-plane:8081",
-				CatalogURL:      "http://catalog:8081",
-				DataPlaneURL:    "http://data-plane:8082",
-				IdentityHubURL:  "http://identity-hub:8080",
+				ControlPlaneURL: "http://127.0.0.1:8081",
+				CatalogURL:      "http://127.0.0.1:8081",
+				DataPlaneURL:    "http://127.0.0.1:8082",
+				IdentityHubURL:  "http://127.0.0.1:8080",
 			},
 		},
 	}

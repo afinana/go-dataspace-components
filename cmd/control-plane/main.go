@@ -62,7 +62,6 @@ func main() {
 	// Instantiate Postgres Catalog Store with KV caching
 	catalogStore := catalogports.NewPostgresCatalogStore(db, "did:web:local-connector").WithCache(kvCache, 5*time.Minute)
 
-
 	// Instantiate control plane database stores
 	negotiationStore := controlplaneports.NewPostgresNegotiationStore(db)
 	transferStore := controlplaneports.NewPostgresTransferStore(db)
@@ -78,7 +77,7 @@ func main() {
 	// DSP protocol endpoints matching W3C spec
 	mux.HandleFunc("POST /protocol/negotiation/request", func(w http.ResponseWriter, r *http.Request) {
 		logger.Info("Received DSP ContractRequestMessage")
-		
+
 		var payload struct {
 			ID                  string `json:"id"`
 			CounterPartyAddress string `json:"counterPartyAddress"`
@@ -145,7 +144,7 @@ func main() {
 
 	mux.HandleFunc("POST /protocol/negotiation/agreement", func(w http.ResponseWriter, r *http.Request) {
 		logger.Info("Received DSP ContractAgreementMessage")
-		
+
 		var payload struct {
 			ID        string                      `json:"id"`
 			Agreement *cpdomain.ContractAgreement `json:"agreement"`
@@ -204,7 +203,7 @@ func main() {
 
 	mux.HandleFunc("POST /protocol/transfer/start", func(w http.ResponseWriter, r *http.Request) {
 		logger.Info("Received DSP TransferStartMessage")
-		
+
 		var payload struct {
 			ID               string `json:"id"`
 			ProcessID        string `json:"processId"`
@@ -266,7 +265,7 @@ func main() {
 		logger.Info("Received mgmt catalog request")
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		
+
 		datasets, err := catalogStore.ListDatasets(r.Context())
 		var dcatDatasets []map[string]any
 		if err == nil && len(datasets) > 0 {
@@ -300,7 +299,7 @@ func main() {
 
 	mux.HandleFunc("POST /api/mgmt/v4/contractnegotiations", func(w http.ResponseWriter, r *http.Request) {
 		logger.Info("Received mgmt initiate negotiation request")
-		
+
 		var payload struct {
 			CounterPartyAddress string `json:"counterPartyAddress"`
 			CounterPartyID      string `json:"counterPartyId"`
@@ -339,7 +338,7 @@ func main() {
 
 	mux.HandleFunc("POST /api/mgmt/v4/contractnegotiations/request", func(w http.ResponseWriter, r *http.Request) {
 		logger.Info("Received mgmt query contract negotiations request")
-		
+
 		cns, err := negotiationStore.ListAll(r.Context())
 		if err != nil {
 			logger.Error("failed to query contract negotiations from database", "err", err)
@@ -349,7 +348,7 @@ func main() {
 
 		var result []map[string]any
 		for _, cn := range cns {
-			agreementID := "agreement-test-99"
+			var agreementID string
 			if cn.Agreement != nil {
 				agreementID = cn.Agreement.ID
 			} else {
@@ -380,7 +379,7 @@ func main() {
 
 	mux.HandleFunc("POST /api/mgmt/v4/transferprocesses", func(w http.ResponseWriter, r *http.Request) {
 		logger.Info("Received mgmt initiate transfer request")
-		
+
 		var payload struct {
 			AssetID             string               `json:"assetId"`
 			ContractID          string               `json:"contractId"`
@@ -415,7 +414,7 @@ func main() {
 
 	mux.HandleFunc("POST /api/mgmt/v4/transferprocesses/request", func(w http.ResponseWriter, r *http.Request) {
 		logger.Info("Received mgmt query transfer processes request")
-		
+
 		tps, err := transferStore.ListAll(r.Context())
 		if err != nil {
 			logger.Error("failed to query transfer processes from database", "err", err)
@@ -451,21 +450,21 @@ func main() {
 
 	mux.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte("OK"))
+		_, _ = w.Write([]byte("OK"))
 	})
 
 	mux.HandleFunc("/mock-backend/", func(w http.ResponseWriter, r *http.Request) {
 		logger.Info("Received mock backend request", "path", r.URL.Path, "headers", r.Header)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		
+
 		headers := make(map[string]string)
 		for k, v := range r.Header {
 			if len(v) > 0 {
 				headers[k] = v[0]
 			}
 		}
-		
+
 		response := map[string]any{
 			"headers": headers,
 			"origin":  r.RemoteAddr,
