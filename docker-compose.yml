@@ -171,9 +171,33 @@ services:
     depends_on:
       - nats
 
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: dataspace-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./docker/prometheus.yml:/etc/prometheus/prometheus.yml
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: dataspace-grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - ./docker/grafana-datasources.yml:/etc/grafana/provisioning/datasources/datasources.yml
+      - ./docker/grafana-dashboards.yml:/etc/grafana/provisioning/dashboards/dashboards.yml
+      - ./docker/dataspace-dashboard.json:/etc/grafana/provisioning/dashboards/dataspace-dashboard.json
+    depends_on:
+      - prometheus
+
 volumes:
   pgdata:
     driver: local
   oxidata:
     driver: local
+
 

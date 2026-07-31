@@ -15,4 +15,6 @@ This directory contains the Architecture Decision Records (ADRs) for the Soverei
 *   [ADR-0009: Centralized Script Organization, Dynamic Workspace Resolution, and Makefile Automation](file:///home/afinana/development/github/go-dataspace-components/docs/adr/0009-centralized-script-organization-and-path-decoupling.md)
 *   [ADR-0010: Consumer-Side Control & Data Plane Architecture & DSP 2025-1 Protocol Compliance](file:///home/afinana/development/github/go-dataspace-components/docs/adr/0010-consumer-architecture-and-dsp-2025-1-upgrade.md)
 *   [ADR-0011: Oxigraph Triple Store and NATS JetStream Event Messaging](file:///home/afinana/development/github/go-dataspace-components/docs/adr/0011-oxigraph-triple-store-and-nats-jetstream.md)
+*   [ADR-0012: Observability Architecture with Prometheus, Grafana, and OpenTelemetry](file:///home/afinana/development/github/go-dataspace-components/docs/adr/0012-observability-with-prometheus-grafana-and-opentelemetry.md)
+
 

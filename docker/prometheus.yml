@@ -1,0 +1,16 @@
+global:
+  scrape_interval: 5s
+  evaluation_interval: 5s
+
+scrape_configs:
+  - job_name: 'dataspace-services'
+    static_configs:
+      - targets:
+          - 'identity-hub:8080'
+          - 'control-plane:8081'
+          - 'data-plane:8082'
+          - 'catalog:8083'
+          - 'data-dashboard:8084'
+          - 'consumer-control-plane:8091'
+          - 'consumer-data-plane:8092'
+          - 'nats:8222'

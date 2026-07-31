@@ -12,6 +12,7 @@ The configuration has been refactored into reusable modules for each microservic
 *   **data-plane**: Data Plane asset emitter and egress/ingress routing service.
 *   **data-dashboard**: Sovereign Data Space administrative dashboard (exposed as NodePort `30084`).
 *   **consumer**: Eclipse Dataspace Components ecosystem consumer client runner.
+*   **monitoring**: Observability stack deploying Prometheus (`30090`) and Grafana (`30000`).
 
 ## Prerequisites
 

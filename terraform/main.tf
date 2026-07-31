@@ -66,3 +66,9 @@ module "consumer_data_plane" {
   image_tag         = var.image_tag
   postgres_password = var.postgres_password
 }
+
+module "monitoring" {
+  source    = "./modules/monitoring"
+  namespace = kubernetes_namespace.dataspace.metadata[0].name
+}
+

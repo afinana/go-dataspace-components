@@ -42,3 +42,14 @@ output "consumer_data_plane_cluster_ip" {
   description = "Consumer Data Plane Cluster IP"
   value       = module.consumer_data_plane.cluster_ip
 }
+
+output "prometheus_service_url" {
+  description = "Access URL for Prometheus Metrics Collector"
+  value       = "http://localhost:30090"
+}
+
+output "grafana_service_url" {
+  description = "Access URL for Grafana Observability Dashboard"
+  value       = "http://localhost:30000"
+}
+
