@@ -13,10 +13,10 @@
     --radius-md: 10px;
     --radius-lg: 14px;
     --radius-xl: 18px;
-    --shadow-sm: none;
-    --shadow-md: none;
-    --shadow-lg: none;
-    --shadow-glow: none;
+    --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 8px 16px -4px rgba(0, 0, 0, 0.12), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    --shadow-lg: 0 16px 32px -8px rgba(0, 0, 0, 0.25), 0 8px 16px -4px rgba(0, 0, 0, 0.1);
+    --shadow-card-hover: 0 20px 30px -10px rgba(0, 0, 0, 0.35), 0 0 15px var(--accent-glow);
 }
 
 /* ---------- DARK THEME ---------- */
@@ -603,23 +603,41 @@ body {
     margin-bottom: 1.5rem;
 }
 
-/* ===== UI CARD ===== */
+/* ===== UI CARDS & GLASSMORPHISM ===== */
 .ui-card {
-    background: var(--bg-card);
+    background: linear-gradient(145deg, var(--bg-card) 0%, var(--bg-surface) 100%);
     border: 1px solid var(--border-color);
     border-radius: var(--radius-lg);
-    padding: 1.25rem 1.35rem;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    transition: background-color var(--transition-fast), border-color var(--transition-fast);
+    padding: 1.35rem;
+    transition: transform var(--transition-normal), border-color var(--transition-normal), box-shadow var(--transition-normal), background var(--transition-normal);
     position: relative;
     overflow: hidden;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    box-shadow: var(--shadow-md);
+}
+
+.ui-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: var(--accent-gradient);
+    opacity: 0.7;
+    transition: opacity var(--transition-fast), height var(--transition-fast);
 }
 
 .ui-card:hover {
+    transform: translateY(-4px);
     border-color: var(--border-highlight);
-    background-color: var(--bg-card-hover);
+    box-shadow: var(--shadow-card-hover);
+}
+
+.ui-card:hover::before {
+    opacity: 1;
+    height: 4px;
 }
 
 /* Fixed-height card variant for management grids */

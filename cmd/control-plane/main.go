@@ -257,7 +257,7 @@ func main() {
 	// DSP 2025-1 protocol endpoints
 	mux.HandleFunc("POST /api/dsp/2025-1/catalog/request", func(w http.ResponseWriter, r *http.Request) {
 		logger.Info("Received DSP 2025-1 catalog request")
-		
+
 		datasets, err := catalogStore.ListDatasets(r.Context())
 		var dcatDatasets []map[string]any
 		if err == nil && len(datasets) > 0 {
@@ -283,12 +283,12 @@ func main() {
 				},
 			}
 		}
-		
+
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		json.NewEncoder(w).Encode(map[string]any{
 			"@context": jsonld.DSPContextArray(),
-			"@type": "dcat:Catalog",
+			"@type":    "dcat:Catalog",
 			"dataset":  dcatDatasets,
 		})
 	})
@@ -323,7 +323,7 @@ func main() {
 		if negID == "" {
 			negID = "negotiation-" + fmt.Sprintf("%d", time.Now().UnixNano())
 		}
-		
+
 		providerPid := "provider-" + negID
 
 		var offer *cpdomain.ContractOffer
@@ -362,11 +362,11 @@ func main() {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusCreated)
 		json.NewEncoder(w).Encode(map[string]any{
-			"@context":             jsonld.DSPContextArray(),
-			"@type":                "dspace:ContractNegotiation",
-			"dspace:providerPid":   providerPid,
-			"dspace:consumerPid":   negID,
-			"dspace:state":         "REQUESTED",
+			"@context":           jsonld.DSPContextArray(),
+			"@type":              "dspace:ContractNegotiation",
+			"dspace:providerPid": providerPid,
+			"dspace:consumerPid": negID,
+			"dspace:state":       "REQUESTED",
 		})
 	})
 
@@ -405,7 +405,7 @@ func main() {
 			_ = cn.Transition(cpdomain.StateVerified)
 			_ = negotiationStore.Update(r.Context(), cn)
 		}
-		
+
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		json.NewEncoder(w).Encode(map[string]any{
@@ -436,7 +436,7 @@ func main() {
 			ConsumerPid      string `json:"dspace:consumerPid"`
 			DataPlaneAddress string `json:"dataPlaneAddress"`
 		}
-		
+
 		_ = json.NewDecoder(r.Body).Decode(&payload)
 
 		consumerPid := payload.ConsumerPid
@@ -457,17 +457,17 @@ func main() {
 			CreatedAt: time.Now(),
 			UpdatedAt: time.Now(),
 		}
-		
+
 		_ = transferStore.Save(r.Context(), tp)
 
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusCreated)
 		json.NewEncoder(w).Encode(map[string]any{
-			"@context": jsonld.DSPContextArray(),
-			"@type": "dspace:TransferProcess",
+			"@context":           jsonld.DSPContextArray(),
+			"@type":              "dspace:TransferProcess",
 			"dspace:providerPid": providerPid,
 			"dspace:consumerPid": consumerPid,
-			"dspace:state": "INITIAL",
+			"dspace:state":       "INITIAL",
 		})
 	})
 
@@ -478,7 +478,7 @@ func main() {
 			http.Error(w, "Not Found", http.StatusNotFound)
 			return
 		}
-		
+
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		json.NewEncoder(w).Encode(map[string]any{
@@ -627,6 +627,10 @@ func main() {
 
 		if err := negotiationStore.Save(r.Context(), cn); err != nil {
 			logger.Error("failed to initiate contract negotiation", "err", err)
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusInternalServerError)
+			json.NewEncoder(w).Encode(map[string]any{"error": "failed to save negotiation: " + err.Error()})
+			return
 		}
 
 		w.Header().Set("Content-Type", "application/json")

@@ -33,7 +33,22 @@ script:post-response {
   }
 }
 
+assert {
+  res.status: eq 200
+  res.body.@type: isDefined
+}
+
+tests {
+  test("Status code is 200 OK", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+  test("Response is a valid DCAT Catalog", function() {
+    expect(res.getBody()["@type"]).to.be.oneOf(["dcat:Catalog", "Catalog"]);
+  });
+}
+
 settings {
   encodeUrl: true
   timeout: 0
 }
+

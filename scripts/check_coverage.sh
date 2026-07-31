@@ -3,7 +3,7 @@ set -e
 
 # check_coverage.sh verifies that global and core domain test coverage satisfy defined quality gates.
 
-GLOBAL_MIN_COVERAGE=${1:-35.0}
+GLOBAL_MIN_COVERAGE=${1:-40.0}
 CORE_MIN_COVERAGE=${2:-65.0}
 
 echo "========================================================"

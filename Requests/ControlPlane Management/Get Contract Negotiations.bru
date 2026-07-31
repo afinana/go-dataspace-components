@@ -30,15 +30,20 @@ body:text {
 
 script:post-response {
   // get the contact agreement id and save it as an environment variable
-  if(res.getStatus() < 300 && res.getStatus() >= 200 && res.getBody().length > 0){
+  if(res.getStatus() < 300 && res.getStatus() >= 200 && Array.isArray(res.getBody()) && res.getBody().length > 0){
       var find_negotiation;
       if (bru.getVar("CONTRACT_NEGOTIATION_ID") !== undefined && bru.getVar("CONTRACT_NEGOTIATION_ID") !== null){
-          find_negotiation = res.getBody().find((el) => el["@id"] == bru.getVar("CONTRACT_NEGOTIATION_ID"))
+          find_negotiation = res.getBody().find((el) => el["@id"] == bru.getVar("CONTRACT_NEGOTIATION_ID") || el["id"] == bru.getVar("CONTRACT_NEGOTIATION_ID"))
       }
   
-      if(find_negotiation){
+      if(find_negotiation && find_negotiation["contractAgreementId"]){
           const contractAgreementId = find_negotiation["contractAgreementId"];
           bru.setVar("CONTRACT_AGREEMENT_ID", contractAgreementId);
+      } else {
+          const itemWithAgreement = res.getBody().find((el) => el["contractAgreementId"]);
+          if (itemWithAgreement) {
+              bru.setVar("CONTRACT_AGREEMENT_ID", itemWithAgreement["contractAgreementId"]);
+          }
       }
   }
   

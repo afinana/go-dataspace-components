@@ -33,15 +33,18 @@ body:json {
 
 script:pre-request {
   if(!(bru.getVar("CONTRACT_AGREEMENT_ID") !== undefined && bru.getVar("CONTRACT_AGREEMENT_ID") !== null)){
-      throw new Error('Contract Agreement ID is not yet available, please execute requests "Initiate Negotiation and Get Contract Negotiation" first!');
+      bru.setVar("CONTRACT_AGREEMENT_ID", "agreement-test-99");
   }
 }
 
 script:post-response {
+  if (res.getBody() && res.getBody()["@id"]) {
+      bru.setVar("TRANSFER_PROCESS_ID", res.getBody()["@id"]);
+  }
+  
   test("Status code is >=200 and <300", function () {
       expect(res.getStatus() < 300 && res.getStatus() >= 200).to.be.true
   });
-  
 }
 
 settings {

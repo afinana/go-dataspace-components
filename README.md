@@ -122,6 +122,11 @@ Once the stack is active:
 | **Provider Data Plane** | `8082` | `POST /v1/dataflows/start`<br>`POST /v1/dataflows/{id}/terminate`<br>`GET /public/*` | Performs signaling loops with the CP and acts as the egress reverse-proxy endpoint. |
 | **Catalog** | `8083` | `GET /catalog`<br>`GET /catalog/datasets`<br>`POST /catalog/datasets`<br>`DELETE /catalog/datasets/{id}` | Standard W3C DCAT API registry for datasets, distributions, and catalog requests. |
 | **Data Dashboard** | `8084` | `GET /`<br>`GET /assets`<br>`GET /policies`<br>`GET /contract-definitions`<br>`GET /catalog`<br>`GET /transfers`<br>`GET /public/config/*` | Sovereign Node Management GUI matching Eclipse EDC DataDashboard modular views. |
+| **NATS JetStream Console** | `8085` | `GET /` | Visual management UI for NATS JetStream message streams and event channels. |
+| **Grafana Observability Dashboard** | `3000` | `GET /` | Observability GUI pre-configured with Prometheus datasource & Dataspace Executive Overview dashboard (Default credentials: `admin` / `admin`). |
+| **Prometheus Metrics Collector** | `9090` | `GET /` | Metrics aggregation engine scraping `gateway:8080`, `spe-controller:2112`, `audit-worker:2113`, `web-gui:8081`, and `nats:8222`. |
+| **Oxigraph Triple Store** | `7878` | `POST /update`<br>`GET /query` | Native RDF Triple Store exposing SPARQL 1.1 endpoints for DCAT-AP graph cataloging. |
+| **NATS JetStream** | `4222 / 8222` | — | High-performance event stream broker for asynchronous dataspace signaling. |
 | **Consumer Control Plane** | `8091` | `POST /consumer/negotiations/*`<br>`POST /consumer/transfers/*`<br>`POST /api/consumer/v4/catalog/request`<br>`POST /api/consumer/v4/contractnegotiations`<br>`POST /api/consumer/v4/transferprocesses` | Handles DSP callbacks from provider connectors and Consumer Management API v4. |
 | **Consumer Data Plane** | `8092` | `POST /v1/dataflows/start`<br>`GET /public/*` | Ingress data sink / consumer proxy endpoint for provider PUSH/PULL transfers. |
 | **PostgreSQL** | `5432` | — | Secure claims, catalog, and negotiation/transfer state stores for provider & consumer. |
@@ -200,5 +205,5 @@ Design choices and architectural decisions are tracked in [docs/adr/](file:///ho
 
 ## 10. License
 
-This repository is licensed under the **GNU General Public License v2.0 (GPL-2.0)**. See the [LICENSE](file:///home/afinana/development/github/go-dataspace-components/LICENSE) file for the full terms and conditions.
+This repository is licensed under the **GNU General Public License v3.0 (GPL-3.0)**. See the [LICENSE](file:///home/afinana/development/github/go-dataspace-components/LICENSE) file for the full terms and conditions.
 

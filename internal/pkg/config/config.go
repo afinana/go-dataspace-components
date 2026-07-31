@@ -14,6 +14,8 @@ type Config struct {
 	DataPlaneURL    string
 	Port            int
 	DatabaseURL     string
+	NatsURL         string
+	OxigraphURL     string
 }
 
 // LoadConfig fetches values from environment variables or returns defaults.
@@ -26,6 +28,8 @@ func LoadConfig() *Config {
 		DataPlaneURL:    getEnv("DATA_PLANE_URL", "http://localhost:8082"),
 		Port:            getEnvAsInt("PORT", 8080),
 		DatabaseURL:     getEnv("DATABASE_URL", "postgres://postgres:postgres@localhost:5432/dataspace_identity?sslmode=disable"),
+		NatsURL:         getEnv("NATS_URL", "nats://localhost:4222"),
+		OxigraphURL:     getEnv("OXIGRAPH_URL", "http://localhost:7878"),
 	}
 }
 

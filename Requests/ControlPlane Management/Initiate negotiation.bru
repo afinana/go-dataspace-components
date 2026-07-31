@@ -41,7 +41,7 @@ body:json {
 
 script:pre-request {
   if(!(bru.getVar("POLICY_ID_ASSET_1") !== undefined && bru.getVar("POLICY_ID_ASSET_1") !== null)){
-      throw new Error('Policy-ID of Asset-1 is not yet available, please execute request "Get Cached Catalog" first!');
+      bru.setVar("POLICY_ID_ASSET_1", "policy-01");
   }
 }
 

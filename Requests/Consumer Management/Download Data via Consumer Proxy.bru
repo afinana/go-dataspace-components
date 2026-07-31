@@ -14,9 +14,14 @@ headers {
   Authorization: Bearer {{EDR_TOKEN}}
 }
 
-script:post-response {
-  test("Status code is >=200 and <300", function () {
-      expect(res.getStatus() < 300 && res.getStatus() >= 200).to.be.true
+assert {
+  res.status: gte 200
+  res.status: lte 299
+}
+
+tests {
+  test("Status code is 200 OK", function () {
+      expect(res.getStatus()).to.be.within(200, 299);
   });
 }
 
@@ -24,3 +29,4 @@ settings {
   encodeUrl: true
   timeout: 0
 }
+

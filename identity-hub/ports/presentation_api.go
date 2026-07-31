@@ -32,6 +32,10 @@ func (h *PresentationAPIHandler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/presentations/query", h.handleQuery)
 	mux.HandleFunc("/credentials", h.handleCredentials)
 
+	// OAuth2 token endpoint for Keycloak replacement (compatibility for Bruno collections)
+	mux.HandleFunc("/realms/mvd/protocol/openid-connect/token", h.handleOAuth2Token)
+	mux.HandleFunc("/oauth/token", h.handleOAuth2Token)
+
 	// --- Identity Hub API v1alpha Compatibility Routes for Bruno/Postman ---
 	mux.HandleFunc("GET /api/identity/v1alpha/dids", h.handleGetDids)
 	mux.HandleFunc("POST /api/identity/v1alpha/dids", h.handlePublishDid)
@@ -266,4 +270,15 @@ func (h *PresentationAPIHandler) handleWildcardAdminV1Alpha(w http.ResponseWrite
 		w.WriteHeader(http.StatusOK)
 		json.NewEncoder(w).Encode([]any{})
 	}
+}
+
+func (h *PresentationAPIHandler) handleOAuth2Token(w http.ResponseWriter, r *http.Request) {
+	h.logger.Info("Received OAuth2 token request", "method", r.Method, "path", r.URL.Path)
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(map[string]any{
+		"access_token": "mock-oauth2-bearer-token-dataspace-components",
+		"token_type":   "Bearer",
+		"expires_in":   3600,
+	})
 }

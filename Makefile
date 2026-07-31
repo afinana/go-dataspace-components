@@ -1,4 +1,10 @@
-.PHONY: all fmt fmt-check lint arch-check test coverage security terraform-check quality-gate setup-hooks start test-dataspace bruno-tests
+.PHONY: all fmt fmt-check lint arch-check test coverage security terraform-check quality-gate setup-hooks start test-dataspace bruno-tests benchmark
+
+## Run Grafana k6 performance and load benchmarks
+benchmark:
+	@chmod +x scripts/run_benchmarks.sh
+	@./scripts/run_benchmarks.sh all
+
 
 LINT_BIN ?= $(shell which golangci-lint 2>/dev/null || echo "$(HOME)/go/bin/golangci-lint")
 
@@ -25,7 +31,14 @@ fmt-check:
 ## Run golangci-lint static analysis
 lint:
 	@echo "🧹 Running golangci-lint static analysis..."
-	@$(LINT_BIN) run
+	@if command -v golangci-lint >/dev/null 2>&1; then \
+		golangci-lint run; \
+	elif [ -x "$(LINT_BIN)" ]; then \
+		$(LINT_BIN) run; \
+	else \
+		echo "ℹ️  golangci-lint not found locally; running go vet static analysis"; \
+		go vet ./...; \
+	fi
 
 ## Verify Hexagonal Architecture compliance
 arch-check:
@@ -40,7 +53,7 @@ test:
 ## Verify code coverage thresholds
 coverage:
 	@chmod +x scripts/check_coverage.sh
-	@./scripts/check_coverage.sh 35.0 65.0
+	@./scripts/check_coverage.sh 40.0 65.0
 
 ## Run security analysis
 security:

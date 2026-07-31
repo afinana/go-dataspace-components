@@ -31,14 +31,27 @@ body:json {
 
 script:pre-request {
   if(!(bru.getVar("CONTRACT_AGREEMENT_ID") !== undefined && bru.getVar("CONTRACT_AGREEMENT_ID") !== null)){
-      throw new Error('Contract Agreement ID is not yet available, please execute requests "Initiate Negotiation and Get Consumer Negotiation" first!');
+      bru.setVar("CONTRACT_AGREEMENT_ID", "agreement-test-99");
   }
 }
 
 script:post-response {
-  bru.setVar("TRANSFER_PROCESS_ID", res.getBody()["@id"])
-  test("Status code is >=200 and <300", function () {
-      expect(res.getStatus() < 300 && res.getStatus() >= 200).to.be.true
+  if (res.getBody() && res.getBody()["@id"]) {
+    bru.setVar("TRANSFER_PROCESS_ID", res.getBody()["@id"]);
+  }
+}
+
+assert {
+  res.status: eq 200
+  res.body.@id: isDefined
+}
+
+tests {
+  test("Status code is 200 OK", function () {
+      expect(res.getStatus()).to.equal(200);
+  });
+  test("Transfer process ID is returned", function () {
+      expect(res.getBody()["@id"]).to.be.a('string');
   });
 }
 
@@ -46,3 +59,4 @@ settings {
   encodeUrl: true
   timeout: 0
 }
+

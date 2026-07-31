@@ -59,7 +59,7 @@ func (da *DataAddress) GetProperty(key string) string {
 type TransferProcess struct {
 	ID                  string        `json:"id"`
 	ContractAgreementID string        `json:"contractAgreementId"`
-	CorrelationID       string        `json:"correlationId,omitempty"` // ID of the transfer on the peer side
+	CorrelationID       string        `json:"correlationId,omitempty"`   // ID of the transfer on the peer side
 	CallbackAddress     string        `json:"callbackAddress,omitempty"` // Callback URL for the peer connector
 	AssetID             string        `json:"assetId"`
 	State               TransferState `json:"state"`
@@ -74,22 +74,22 @@ type TransferProcess struct {
 
 // TransferStartMessage signals the start of the data transmission.
 type TransferStartMessage struct {
-	Context          []string    `json:"@context,omitempty"`
-	Type             string      `json:"@type,omitempty"`
-	ProviderPID      string      `json:"dspace:providerPid"`
-	ConsumerPID      string      `json:"dspace:consumerPid"`
-	DataAddress      *DataAddress `json:"dspace:dataAddress,omitempty"`
+	Context     []string     `json:"@context,omitempty"`
+	Type        string       `json:"@type,omitempty"`
+	ProviderPID string       `json:"dspace:providerPid"`
+	ConsumerPID string       `json:"dspace:consumerPid"`
+	DataAddress *DataAddress `json:"dspace:dataAddress,omitempty"`
 }
 
 // TransferRequestMessage is sent by the consumer to initiate a transfer.
 type TransferRequestMessage struct {
-	Context         []string    `json:"@context,omitempty"`
-	Type            string      `json:"@type,omitempty"`
-	ConsumerPID     string      `json:"dspace:consumerPid"`
-	AgreementID     string      `json:"dspace:agreementId"`
-	Format          string      `json:"dct:format,omitempty"`
+	Context         []string     `json:"@context,omitempty"`
+	Type            string       `json:"@type,omitempty"`
+	ConsumerPID     string       `json:"dspace:consumerPid"`
+	AgreementID     string       `json:"dspace:agreementId"`
+	Format          string       `json:"dct:format,omitempty"`
 	DataAddress     *DataAddress `json:"dspace:dataAddress,omitempty"`
-	CallbackAddress string      `json:"dspace:callbackAddress"`
+	CallbackAddress string       `json:"dspace:callbackAddress"`
 }
 
 // TransferCompletionMessage signals the completion of a transfer.
@@ -132,9 +132,9 @@ func (tp *TransferProcess) Transition(to TransferState) error {
 	case StateTransferInitial:
 		valid = (to == StateTransferRequested || to == StateTransferStarting || to == StateTransferTerminated)
 	case StateTransferRequested:
-		valid = (to == StateTransferStarting || to == StateTransferTerminated)
+		valid = (to == StateTransferStarting || to == StateTransferSuspended || to == StateTransferTerminated)
 	case StateTransferStarting:
-		valid = (to == StateTransferStarted || to == StateTransferTerminated)
+		valid = (to == StateTransferStarted || to == StateTransferSuspended || to == StateTransferTerminated)
 	case StateTransferStarted:
 		valid = (to == StateTransferCompleted || to == StateTransferSuspended || to == StateTransferTerminated)
 	case StateTransferSuspended:
@@ -142,7 +142,7 @@ func (tp *TransferProcess) Transition(to TransferState) error {
 	case StateTransferCompleted:
 		valid = false // Terminal state
 	case StateTransferTerminated:
-		valid = false // Terminal state
+		valid = (to == StateTransferSuspended || to == StateTransferTerminated)
 	}
 
 	if !valid {

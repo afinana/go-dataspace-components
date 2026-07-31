@@ -11,18 +11,18 @@ const (
 
 // DSP 2025-1 message types.
 const (
-	TypeCatalogRequestMessage                  = "dspace:CatalogRequestMessage"
-	TypeContractRequestMessage                 = "dspace:ContractRequestMessage"
-	TypeContractOfferMessage                   = "dspace:ContractOfferMessage"
-	TypeContractAgreementMessage               = "dspace:ContractAgreementMessage"
-	TypeContractAgreementVerificationMessage   = "dspace:ContractAgreementVerificationMessage"
-	TypeContractNegotiationEventMessage        = "dspace:ContractNegotiationEventMessage"
-	TypeContractNegotiationTerminationMessage  = "dspace:ContractNegotiationTerminationMessage"
-	TypeTransferRequestMessage                 = "dspace:TransferRequestMessage"
-	TypeTransferStartMessage                   = "dspace:TransferStartMessage"
-	TypeTransferCompletionMessage              = "dspace:TransferCompletionMessage"
-	TypeTransferSuspensionMessage              = "dspace:TransferSuspensionMessage"
-	TypeTransferTerminationMessage             = "dspace:TransferTerminationMessage"
+	TypeCatalogRequestMessage                 = "dspace:CatalogRequestMessage"
+	TypeContractRequestMessage                = "dspace:ContractRequestMessage"
+	TypeContractOfferMessage                  = "dspace:ContractOfferMessage"
+	TypeContractAgreementMessage              = "dspace:ContractAgreementMessage"
+	TypeContractAgreementVerificationMessage  = "dspace:ContractAgreementVerificationMessage"
+	TypeContractNegotiationEventMessage       = "dspace:ContractNegotiationEventMessage"
+	TypeContractNegotiationTerminationMessage = "dspace:ContractNegotiationTerminationMessage"
+	TypeTransferRequestMessage                = "dspace:TransferRequestMessage"
+	TypeTransferStartMessage                  = "dspace:TransferStartMessage"
+	TypeTransferCompletionMessage             = "dspace:TransferCompletionMessage"
+	TypeTransferSuspensionMessage             = "dspace:TransferSuspensionMessage"
+	TypeTransferTerminationMessage            = "dspace:TransferTerminationMessage"
 )
 
 // DSPContextArray returns the standard DSP 2025-1 context array for protocol messages.
