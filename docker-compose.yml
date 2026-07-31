@@ -20,6 +20,8 @@ services:
       - ./control-plane/ports/schema.sql:/docker-entrypoint-initdb.d/3-controlplane-schema.sql
       # Automatically initialize the PostgreSQL schema with Data Plane tables
       - ./data-plane/ports/schema.sql:/docker-entrypoint-initdb.d/4-dataplane-schema.sql
+      # Automatically initialize the PostgreSQL schema with Consumer tables
+      - ./consumer/ports/schema.sql:/docker-entrypoint-initdb.d/5-consumer-schema.sql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres -d dataspace_identity"]
       interval: 5s
@@ -58,6 +60,44 @@ services:
       - DATABASE_URL=postgres://postgres:postgres@postgres:5432/dataspace_identity?sslmode=disable
     depends_on:
       - identity-hub
+      - postgres
+
+  consumer-control-plane:
+    build:
+      context: .
+      dockerfile: docker/consumer.Dockerfile
+    container_name: dataspace-consumer-control-plane
+    ports:
+      - "8091:8091"
+    environment:
+      - PORT=8091
+      - LOG_LEVEL=DEBUG
+      - ENVIRONMENT=development
+      - SERVICE_NAME=consumer-control-plane
+      - DATABASE_URL=postgres://postgres:postgres@postgres:5432/dataspace_identity?sslmode=disable
+      - PROVIDER_DSP_URL=http://control-plane:8081/api/dsp/2025-1
+      - PROVIDER_ID=did:web:provider
+      - CONSUMER_CALLBACK_URL=http://consumer-control-plane:8091/consumer
+    depends_on:
+      - identity-hub
+      - postgres
+      - control-plane
+
+  consumer-data-plane:
+    build:
+      context: .
+      dockerfile: docker/consumer-data-plane.Dockerfile
+    container_name: dataspace-consumer-data-plane
+    ports:
+      - "8092:8092"
+    environment:
+      - PORT=8092
+      - LOG_LEVEL=DEBUG
+      - ENVIRONMENT=development
+      - SERVICE_NAME=consumer-data-plane
+      - DATABASE_URL=postgres://postgres:postgres@postgres:5432/dataspace_identity?sslmode=disable
+    depends_on:
+      - consumer-control-plane
       - postgres
 
   data-plane:

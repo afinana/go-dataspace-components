@@ -15,6 +15,7 @@ const (
 	StateTransferRequested
 	StateTransferStarting
 	StateTransferStarted
+	StateTransferSuspended
 	StateTransferCompleted
 	StateTransferTerminated
 )
@@ -29,6 +30,8 @@ func (s TransferState) String() string {
 		return "STARTING"
 	case StateTransferStarted:
 		return "STARTED"
+	case StateTransferSuspended:
+		return "SUSPENDED"
 	case StateTransferCompleted:
 		return "COMPLETED"
 	case StateTransferTerminated:
@@ -57,6 +60,7 @@ type TransferProcess struct {
 	ID                  string        `json:"id"`
 	ContractAgreementID string        `json:"contractAgreementId"`
 	CorrelationID       string        `json:"correlationId,omitempty"` // ID of the transfer on the peer side
+	CallbackAddress     string        `json:"callbackAddress,omitempty"` // Callback URL for the peer connector
 	AssetID             string        `json:"assetId"`
 	State               TransferState `json:"state"`
 	DataDestination     DataAddress   `json:"dataDestination"`
@@ -66,13 +70,54 @@ type TransferProcess struct {
 	UpdatedAt           time.Time     `json:"updatedAt"`
 }
 
-// DSP Protocol Messages mapping to domain structures
+// DSP 2025-1 Protocol Messages mapping to domain structures
 
 // TransferStartMessage signals the start of the data transmission.
 type TransferStartMessage struct {
-	ID               string `json:"id"`
-	ProcessID        string `json:"processId"`
-	DataPlaneAddress string `json:"dataPlaneAddress,omitempty"`
+	Context          []string    `json:"@context,omitempty"`
+	Type             string      `json:"@type,omitempty"`
+	ProviderPID      string      `json:"dspace:providerPid"`
+	ConsumerPID      string      `json:"dspace:consumerPid"`
+	DataAddress      *DataAddress `json:"dspace:dataAddress,omitempty"`
+}
+
+// TransferRequestMessage is sent by the consumer to initiate a transfer.
+type TransferRequestMessage struct {
+	Context         []string    `json:"@context,omitempty"`
+	Type            string      `json:"@type,omitempty"`
+	ConsumerPID     string      `json:"dspace:consumerPid"`
+	AgreementID     string      `json:"dspace:agreementId"`
+	Format          string      `json:"dct:format,omitempty"`
+	DataAddress     *DataAddress `json:"dspace:dataAddress,omitempty"`
+	CallbackAddress string      `json:"dspace:callbackAddress"`
+}
+
+// TransferCompletionMessage signals the completion of a transfer.
+type TransferCompletionMessage struct {
+	Context     []string `json:"@context,omitempty"`
+	Type        string   `json:"@type,omitempty"`
+	ProviderPID string   `json:"dspace:providerPid"`
+	ConsumerPID string   `json:"dspace:consumerPid"`
+}
+
+// TransferSuspensionMessage signals the suspension of a transfer.
+type TransferSuspensionMessage struct {
+	Context     []string `json:"@context,omitempty"`
+	Type        string   `json:"@type,omitempty"`
+	ProviderPID string   `json:"dspace:providerPid"`
+	ConsumerPID string   `json:"dspace:consumerPid"`
+	Code        string   `json:"dspace:code,omitempty"`
+	Reason      []string `json:"dspace:reason,omitempty"`
+}
+
+// TransferTerminationMessage signals the termination of a transfer.
+type TransferTerminationMessage struct {
+	Context     []string `json:"@context,omitempty"`
+	Type        string   `json:"@type,omitempty"`
+	ProviderPID string   `json:"dspace:providerPid"`
+	ConsumerPID string   `json:"dspace:consumerPid"`
+	Code        string   `json:"dspace:code,omitempty"`
+	Reason      []string `json:"dspace:reason,omitempty"`
 }
 
 // State Machine transition rules.
@@ -91,7 +136,9 @@ func (tp *TransferProcess) Transition(to TransferState) error {
 	case StateTransferStarting:
 		valid = (to == StateTransferStarted || to == StateTransferTerminated)
 	case StateTransferStarted:
-		valid = (to == StateTransferCompleted || to == StateTransferTerminated)
+		valid = (to == StateTransferCompleted || to == StateTransferSuspended || to == StateTransferTerminated)
+	case StateTransferSuspended:
+		valid = (to == StateTransferStarted || to == StateTransferTerminated)
 	case StateTransferCompleted:
 		valid = false // Terminal state
 	case StateTransferTerminated:

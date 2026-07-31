@@ -52,3 +52,17 @@ module "data_dashboard" {
   namespace = kubernetes_namespace.dataspace.metadata[0].name
   image_tag = var.image_tag
 }
+
+module "consumer" {
+  source            = "./modules/consumer"
+  namespace         = kubernetes_namespace.dataspace.metadata[0].name
+  image_tag         = var.image_tag
+  postgres_password = var.postgres_password
+}
+
+module "consumer_data_plane" {
+  source            = "./modules/consumer-data-plane"
+  namespace         = kubernetes_namespace.dataspace.metadata[0].name
+  image_tag         = var.image_tag
+  postgres_password = var.postgres_password
+}

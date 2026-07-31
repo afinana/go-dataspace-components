@@ -20,10 +20,7 @@
         "write_to_file",
         "replace_file_content",
         "multi_replace_file_content",
-        "run_command",
-        "browser_subagent",
-        "invoke_subagent",
-        "send_message"
+        "run_command"
       ]
     }
   }

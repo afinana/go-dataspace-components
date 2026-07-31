@@ -12,10 +12,17 @@ func TestContractNegotiation_Transition(t *testing.T) {
 		errorDetail string
 		expectErr   bool
 	}{
+		// REQUESTED transitions
 		{
 			name:      "Requested to Agreed - Valid",
 			initial:   StateRequested,
 			target:    StateAgreed,
+			expectErr: false,
+		},
+		{
+			name:      "Requested to Offered - Valid",
+			initial:   StateRequested,
+			target:    StateOffered,
 			expectErr: false,
 		},
 		{
@@ -32,6 +39,27 @@ func TestContractNegotiation_Transition(t *testing.T) {
 			errorDetail: "",
 			expectErr:   true,
 		},
+		// OFFERED transitions
+		{
+			name:      "Offered to Requested - Valid (counter-offer)",
+			initial:   StateOffered,
+			target:    StateRequested,
+			expectErr: false,
+		},
+		{
+			name:      "Offered to Accepted - Valid",
+			initial:   StateOffered,
+			target:    StateAccepted,
+			expectErr: false,
+		},
+		// ACCEPTED transitions
+		{
+			name:      "Accepted to Agreed - Valid",
+			initial:   StateAccepted,
+			target:    StateAgreed,
+			expectErr: false,
+		},
+		// AGREED transitions
 		{
 			name:      "Agreed to Verified - Valid",
 			initial:   StateAgreed,
@@ -39,17 +67,19 @@ func TestContractNegotiation_Transition(t *testing.T) {
 			expectErr: false,
 		},
 		{
-			name:      "Agreed to Finalized - Valid",
+			name:      "Agreed to Finalized - Invalid (must go through Verified)",
 			initial:   StateAgreed,
 			target:    StateFinalized,
-			expectErr: false,
+			expectErr: true,
 		},
+		// VERIFIED transitions
 		{
 			name:      "Verified to Finalized - Valid",
 			initial:   StateVerified,
 			target:    StateFinalized,
 			expectErr: false,
 		},
+		// Terminal state checks
 		{
 			name:      "Finalized to Agreed - Invalid",
 			initial:   StateFinalized,

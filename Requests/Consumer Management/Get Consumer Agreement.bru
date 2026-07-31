@@ -1,0 +1,22 @@
+meta {
+  name: Get Consumer Agreement
+  type: http
+  seq: 6
+}
+
+get {
+  url: {{CONSUMER_CP}}/api/consumer/v4/contractnegotiations/{{CONTRACT_NEGOTIATION_ID}}/agreement
+  body: none
+  auth: inherit
+}
+
+script:post-response {
+  test("Status code is >=200 and <300", function () {
+      expect(res.getStatus() < 300 && res.getStatus() >= 200).to.be.true
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

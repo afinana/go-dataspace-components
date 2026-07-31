@@ -1,0 +1,22 @@
+meta {
+  name: Get Consumer Transfer
+  type: http
+  seq: 10
+}
+
+get {
+  url: {{CONSUMER_CP}}/api/consumer/v4/transferprocesses/{{TRANSFER_PROCESS_ID}}
+  body: none
+  auth: inherit
+}
+
+script:post-response {
+  test("Status code is >=200 and <300", function () {
+      expect(res.getStatus() < 300 && res.getStatus() >= 200).to.be.true
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

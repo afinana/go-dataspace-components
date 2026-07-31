@@ -96,9 +96,9 @@ curl -s http://localhost:8084/public/config/app-config.json | grep -q "healthChe
 check_status
 echo ""
 
-# 6. Run Go Integration client-tester suite
-echo -e "${BLUE}>>> [6/6] Executing Compiled Client Integration Tester...${NC}"
-go run cmd/client-tester/main.go
+# 6. Run Go Integration consumer client suite
+echo -e "${BLUE}>>> [6/6] Executing Compiled Consumer Integration Suite...${NC}"
+go run cmd/consumer/main.go
 check_status
 
 echo ""

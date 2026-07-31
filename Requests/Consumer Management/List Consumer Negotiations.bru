@@ -1,0 +1,26 @@
+meta {
+  name: List Consumer Negotiations
+  type: http
+  seq: 7
+}
+
+post {
+  url: {{CONSUMER_CP}}/api/consumer/v4/contractnegotiations/request
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {}
+}
+
+script:post-response {
+  test("Status code is >=200 and <300", function () {
+      expect(res.getStatus() < 300 && res.getStatus() >= 200).to.be.true
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

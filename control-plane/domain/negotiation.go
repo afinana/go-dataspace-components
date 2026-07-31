@@ -12,6 +12,8 @@ type NegotiationState int
 
 const (
 	StateRequested NegotiationState = iota
+	StateOffered
+	StateAccepted
 	StateAgreed
 	StateVerified
 	StateFinalized
@@ -22,6 +24,10 @@ func (s NegotiationState) String() string {
 	switch s {
 	case StateRequested:
 		return "REQUESTED"
+	case StateOffered:
+		return "OFFERED"
+	case StateAccepted:
+		return "ACCEPTED"
 	case StateAgreed:
 		return "AGREED"
 	case StateVerified:
@@ -37,16 +43,17 @@ func (s NegotiationState) String() string {
 
 // ContractNegotiation tracks the state machine of a contract negotiation between a provider and consumer.
 type ContractNegotiation struct {
-	ID            string             `json:"id"`
-	CorrelationID string             `json:"correlationId"` // External ID used by the peer connector
-	CounterParty  string             `json:"counterParty"`  // Peer connector endpoint/DID
-	Type          NegotiationType    `json:"type"`          // PROVIDER or CONSUMER role
-	State         NegotiationState   `json:"state"`
-	ContractOffer *ContractOffer     `json:"contractOffer,omitempty"`
-	Agreement     *ContractAgreement `json:"agreement,omitempty"`
-	ErrorDetail   string             `json:"errorDetail,omitempty"`
-	CreatedAt     time.Time          `json:"createdAt"`
-	UpdatedAt     time.Time          `json:"updatedAt"`
+	ID              string             `json:"id"`
+	CorrelationID   string             `json:"correlationId"`   // External ID used by the peer connector
+	CounterParty    string             `json:"counterParty"`    // Peer connector endpoint/DID
+	CallbackAddress string             `json:"callbackAddress"` // Callback URL for the peer connector
+	Type            NegotiationType    `json:"type"`            // PROVIDER or CONSUMER role
+	State           NegotiationState   `json:"state"`
+	ContractOffer   *ContractOffer     `json:"contractOffer,omitempty"`
+	Agreement       *ContractAgreement `json:"agreement,omitempty"`
+	ErrorDetail     string             `json:"errorDetail,omitempty"`
+	CreatedAt       time.Time          `json:"createdAt"`
+	UpdatedAt       time.Time          `json:"updatedAt"`
 }
 
 type NegotiationType string
@@ -76,19 +83,62 @@ type ContractAgreement struct {
 	ValidEndDate    time.Time `json:"validEndDate"`
 }
 
-// DSP Protocol Messages mapping to domain structures
+// DSP 2025-1 Protocol Messages mapping to domain structures
 
-// ContractRequestMessage is the message sent to initiate or counter a negotiation.
+// ContractRequestMessage is the message sent by the consumer to initiate or counter a negotiation.
 type ContractRequestMessage struct {
-	ID              string         `json:"id"`
-	CallbackAddress string         `json:"callbackAddress"`
-	Offer           *ContractOffer `json:"offer"`
+	Context         []string       `json:"@context,omitempty"`
+	Type            string         `json:"@type,omitempty"`
+	ConsumerPID     string         `json:"dspace:consumerPid,omitempty"`
+	ProviderPID     string         `json:"dspace:providerPid,omitempty"`
+	CallbackAddress string         `json:"dspace:callbackAddress"`
+	Offer           *ContractOffer `json:"dspace:offer"`
+}
+
+// ContractOfferMessage is the message sent by the provider with an offer/counter-offer.
+type ContractOfferMessage struct {
+	Context         []string       `json:"@context,omitempty"`
+	Type            string         `json:"@type,omitempty"`
+	ProviderPID     string         `json:"dspace:providerPid"`
+	ConsumerPID     string         `json:"dspace:consumerPid"`
+	Offer           *ContractOffer `json:"dspace:offer"`
+	CallbackAddress string         `json:"dspace:callbackAddress"`
 }
 
 // ContractAgreementMessage is the message confirming the agreed contract terms.
 type ContractAgreementMessage struct {
-	ID        string             `json:"id"`
-	Agreement *ContractAgreement `json:"agreement"`
+	Context     []string           `json:"@context,omitempty"`
+	Type        string             `json:"@type,omitempty"`
+	ProviderPID string             `json:"dspace:providerPid"`
+	ConsumerPID string             `json:"dspace:consumerPid"`
+	Agreement   *ContractAgreement `json:"dspace:agreement"`
+}
+
+// ContractAgreementVerificationMessage is sent by the consumer to verify an agreement.
+type ContractAgreementVerificationMessage struct {
+	Context     []string `json:"@context,omitempty"`
+	Type        string   `json:"@type,omitempty"`
+	ProviderPID string   `json:"dspace:providerPid"`
+	ConsumerPID string   `json:"dspace:consumerPid"`
+}
+
+// ContractNegotiationEventMessage signals state transitions between peers.
+type ContractNegotiationEventMessage struct {
+	Context     []string `json:"@context,omitempty"`
+	Type        string   `json:"@type,omitempty"`
+	ProviderPID string   `json:"dspace:providerPid"`
+	ConsumerPID string   `json:"dspace:consumerPid"`
+	EventType   string   `json:"dspace:eventType"` // FINALIZED, ACCEPTED
+}
+
+// ContractNegotiationTerminationMessage terminates a negotiation.
+type ContractNegotiationTerminationMessage struct {
+	Context     []string `json:"@context,omitempty"`
+	Type        string   `json:"@type,omitempty"`
+	ProviderPID string   `json:"dspace:providerPid"`
+	ConsumerPID string   `json:"dspace:consumerPid"`
+	Code        string   `json:"dspace:code,omitempty"`
+	Reason      []string `json:"dspace:reason,omitempty"`
 }
 
 // State Machine transitions rules
@@ -101,9 +151,13 @@ func (cn *ContractNegotiation) Transition(to NegotiationState) error {
 	valid := false
 	switch cn.State {
 	case StateRequested:
+		valid = (to == StateOffered || to == StateAgreed || to == StateTerminated)
+	case StateOffered:
+		valid = (to == StateRequested || to == StateAccepted || to == StateTerminated)
+	case StateAccepted:
 		valid = (to == StateAgreed || to == StateTerminated)
 	case StateAgreed:
-		valid = (to == StateVerified || to == StateFinalized || to == StateTerminated)
+		valid = (to == StateVerified || to == StateTerminated)
 	case StateVerified:
 		valid = (to == StateFinalized || to == StateTerminated)
 	case StateFinalized:

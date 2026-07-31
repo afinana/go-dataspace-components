@@ -1,0 +1,26 @@
+meta {
+  name: Download Data via Consumer Proxy
+  type: http
+  seq: 15
+}
+
+get {
+  url: {{CONSUMER_DP}}/public/get
+  body: none
+  auth: none
+}
+
+headers {
+  Authorization: Bearer {{EDR_TOKEN}}
+}
+
+script:post-response {
+  test("Status code is >=200 and <300", function () {
+      expect(res.getStatus() < 300 && res.getStatus() >= 200).to.be.true
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

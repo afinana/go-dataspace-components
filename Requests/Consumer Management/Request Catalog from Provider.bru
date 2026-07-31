@@ -1,0 +1,39 @@
+meta {
+  name: Request Catalog from Provider
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{CONSUMER_CP}}/api/consumer/v4/catalog/request
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "@context": ["https://w3id.org/edc/connector/management/v2"],
+    "@type": "CatalogRequest",
+    "counterPartyAddress": "{{PROVIDER_DSP}}",
+    "counterPartyId": "{{PROVIDER_ID}}",
+    "protocol": "dataspace-protocol-http:2025-1",
+    "querySpec": { "offset": 0, "limit": 50 }
+  }
+}
+
+script:post-response {
+  let body = res.getBody();
+  if (body && body["dcat:dataset"]) {
+    // Basic heuristic to get the first policy ID
+    let dataset = Array.isArray(body["dcat:dataset"]) ? body["dcat:dataset"][0] : body["dcat:dataset"];
+    let policy = Array.isArray(dataset["odrl:hasPolicy"]) ? dataset["odrl:hasPolicy"][0] : dataset["odrl:hasPolicy"];
+    if (policy && policy["@id"]) {
+      bru.setEnvVar("POLICY_ID_ASSET_1", policy["@id"]);
+    }
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

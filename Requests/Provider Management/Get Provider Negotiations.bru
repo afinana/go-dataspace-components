@@ -1,0 +1,15 @@
+meta {
+  name: Get Provider Negotiations
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{PROVIDER_CP}}/api/mgmt/v4/contractnegotiations/request
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {}
+}

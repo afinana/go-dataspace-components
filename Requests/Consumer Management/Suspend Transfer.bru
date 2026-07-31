@@ -1,0 +1,31 @@
+meta {
+  name: Suspend Transfer
+  type: http
+  seq: 14
+}
+
+post {
+  url: {{CONSUMER_CP}}/api/consumer/v4/transferprocesses/{{TRANSFER_PROCESS_ID}}/suspend
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "@context": [
+      "https://w3id.org/edc/connector/management/v2"
+    ],
+    "reason": "User requested suspension"
+  }
+}
+
+script:post-response {
+  test("Status code is >=200 and <300", function () {
+      expect(res.getStatus() < 300 && res.getStatus() >= 200).to.be.true
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

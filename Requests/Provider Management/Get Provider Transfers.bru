@@ -1,0 +1,15 @@
+meta {
+  name: Get Provider Transfers
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{PROVIDER_CP}}/api/mgmt/v4/transferprocesses/request
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {}
+}

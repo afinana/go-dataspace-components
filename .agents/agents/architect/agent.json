@@ -19,8 +19,7 @@
         "read_url_content",
         "write_to_file",
         "replace_file_content",
-        "multi_replace_file_content",
-        "send_message"
+        "multi_replace_file_content"
       ]
     }
   }

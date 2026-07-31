@@ -12,20 +12,6 @@ echo "   Sovereign Dataspace - Bruno Test Suite Orchestrator          "
 echo "================================================================="
 echo ""
 
-# 1. Build and boot the stack with latest endpoints
-echo ">>> [1/3] Building and starting local container stack..."
-./scripts/start.sh
-
-# 2. Wait for health checks
-echo ">>> [2/3] Waiting for services to become healthy..."
-for i in {1..15}; do
-  if curl -s http://localhost:8081/health >/dev/null && curl -s http://localhost:8082/health >/dev/null && curl -s http://localhost:8080/credentials >/dev/null; then
-    echo "✔ All services are healthy!"
-    break
-  fi
-  echo "Waiting for services... (attempt $i/15)"
-  sleep 2
-done
 
 # 3. Run Bruno integration tests
 echo ""

@@ -13,6 +13,7 @@ import (
 	cpdomain "github.com/afinana/go-dataspace-components/control-plane/domain"
 	controlplaneports "github.com/afinana/go-dataspace-components/control-plane/ports"
 	"github.com/afinana/go-dataspace-components/internal/pkg/config"
+	"github.com/afinana/go-dataspace-components/internal/pkg/jsonld"
 	"github.com/afinana/go-dataspace-components/internal/pkg/kvstore"
 	"github.com/afinana/go-dataspace-components/internal/pkg/logging"
 	"github.com/afinana/go-dataspace-components/internal/pkg/telemetry"
@@ -250,6 +251,306 @@ func main() {
 		json.NewEncoder(w).Encode(map[string]string{
 			"status": "STARTED",
 			"id":     procID,
+		})
+	})
+
+	// DSP 2025-1 protocol endpoints
+	mux.HandleFunc("POST /api/dsp/2025-1/catalog/request", func(w http.ResponseWriter, r *http.Request) {
+		logger.Info("Received DSP 2025-1 catalog request")
+		
+		datasets, err := catalogStore.ListDatasets(r.Context())
+		var dcatDatasets []map[string]any
+		if err == nil && len(datasets) > 0 {
+			for _, ds := range datasets {
+				dcatDatasets = append(dcatDatasets, map[string]any{
+					"@id": ds.ID,
+					"hasPolicy": []map[string]any{
+						{
+							"@id": "policy-" + ds.ID,
+						},
+					},
+				})
+			}
+		} else {
+			dcatDatasets = []map[string]any{
+				{
+					"@id": "asset-1",
+					"hasPolicy": []map[string]any{
+						{
+							"@id": "policy-01",
+						},
+					},
+				},
+			}
+		}
+		
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(map[string]any{
+			"@context": jsonld.DSPContextArray(),
+			"@type": "dcat:Catalog",
+			"dataset":  dcatDatasets,
+		})
+	})
+
+	mux.HandleFunc("POST /api/dsp/2025-1/contractnegotiations/request", func(w http.ResponseWriter, r *http.Request) {
+		logger.Info("Received DSP 2025-1 ContractRequestMessage")
+
+		var payload struct {
+			ID                  string `json:"id"`
+			ConsumerPid         string `json:"dspace:consumerPid"`
+			ProviderPid         string `json:"dspace:providerPid"`
+			CounterPartyAddress string `json:"counterPartyAddress"`
+			CounterPartyID      string `json:"counterPartyId"`
+			CallbackAddress     string `json:"dspace:callbackAddress"`
+			Offer               *struct {
+				ID      string `json:"@id"`
+				AssetID string `json:"dspace:assetId"`
+				Policy  any    `json:"odrl:hasPolicy"`
+			} `json:"dspace:offer"`
+		}
+
+		if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
+			logger.Error("failed to decode contract request", "err", err)
+			http.Error(w, "Bad Request", http.StatusBadRequest)
+			return
+		}
+
+		negID := payload.ConsumerPid
+		if negID == "" {
+			negID = payload.ID
+		}
+		if negID == "" {
+			negID = "negotiation-" + fmt.Sprintf("%d", time.Now().UnixNano())
+		}
+		
+		providerPid := "provider-" + negID
+
+		var offer *cpdomain.ContractOffer
+		if payload.Offer != nil {
+			offer = &cpdomain.ContractOffer{
+				ID:        payload.Offer.ID,
+				AssetID:   payload.Offer.AssetID,
+				Policy:    payload.Offer.Policy,
+				CreatedAt: time.Now(),
+			}
+		} else {
+			offer = &cpdomain.ContractOffer{
+				ID:        "offer-" + negID,
+				AssetID:   "dataset-asset-01",
+				CreatedAt: time.Now(),
+			}
+		}
+
+		cn := &cpdomain.ContractNegotiation{
+			ID:            providerPid,
+			CorrelationID: negID,
+			CounterParty:  payload.CounterPartyID,
+			Type:          cpdomain.TypeProvider,
+			State:         cpdomain.StateRequested,
+			ContractOffer: offer,
+			CreatedAt:     time.Now(),
+			UpdatedAt:     time.Now(),
+		}
+
+		if err := negotiationStore.Save(r.Context(), cn); err != nil {
+			logger.Error("failed to save contract negotiation", "err", err)
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+			return
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusCreated)
+		json.NewEncoder(w).Encode(map[string]any{
+			"@context":             jsonld.DSPContextArray(),
+			"@type":                "dspace:ContractNegotiation",
+			"dspace:providerPid":   providerPid,
+			"dspace:consumerPid":   negID,
+			"dspace:state":         "REQUESTED",
+		})
+	})
+
+	mux.HandleFunc("GET /api/dsp/2025-1/contractnegotiations/{providerPid}", func(w http.ResponseWriter, r *http.Request) {
+		providerPid := r.PathValue("providerPid")
+		cn, err := negotiationStore.FindByID(r.Context(), providerPid)
+		if err != nil {
+			http.Error(w, "Not Found", http.StatusNotFound)
+			return
+		}
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(map[string]any{
+			"@context":           jsonld.DSPContextArray(),
+			"@type":              "dspace:ContractNegotiation",
+			"dspace:providerPid": cn.ID,
+			"dspace:consumerPid": cn.CorrelationID,
+			"dspace:state":       cn.State.String(),
+		})
+	})
+
+	mux.HandleFunc("POST /api/dsp/2025-1/contractnegotiations/{providerPid}/events", func(w http.ResponseWriter, r *http.Request) {
+		providerPid := r.PathValue("providerPid")
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(map[string]any{
+			"@context":           jsonld.DSPContextArray(),
+			"dspace:providerPid": providerPid,
+		})
+	})
+
+	mux.HandleFunc("POST /api/dsp/2025-1/contractnegotiations/{providerPid}/agreement/verification", func(w http.ResponseWriter, r *http.Request) {
+		providerPid := r.PathValue("providerPid")
+		cn, err := negotiationStore.FindByID(r.Context(), providerPid)
+		if err == nil {
+			_ = cn.Transition(cpdomain.StateVerified)
+			_ = negotiationStore.Update(r.Context(), cn)
+		}
+		
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(map[string]any{
+			"@context":           jsonld.DSPContextArray(),
+			"dspace:providerPid": providerPid,
+		})
+	})
+
+	mux.HandleFunc("POST /api/dsp/2025-1/contractnegotiations/{providerPid}/termination", func(w http.ResponseWriter, r *http.Request) {
+		providerPid := r.PathValue("providerPid")
+		cn, err := negotiationStore.FindByID(r.Context(), providerPid)
+		if err == nil {
+			_ = cn.Transition(cpdomain.StateTerminated)
+			_ = negotiationStore.Update(r.Context(), cn)
+		}
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(map[string]any{
+			"@context":           jsonld.DSPContextArray(),
+			"dspace:providerPid": providerPid,
+		})
+	})
+
+	mux.HandleFunc("POST /api/dsp/2025-1/transferprocesses/request", func(w http.ResponseWriter, r *http.Request) {
+		logger.Info("Received DSP 2025-1 TransferRequestMessage")
+
+		var payload struct {
+			ConsumerPid      string `json:"dspace:consumerPid"`
+			DataPlaneAddress string `json:"dataPlaneAddress"`
+		}
+		
+		_ = json.NewDecoder(r.Body).Decode(&payload)
+
+		consumerPid := payload.ConsumerPid
+		if consumerPid == "" {
+			consumerPid = "transfer-cons-" + fmt.Sprintf("%d", time.Now().UnixNano())
+		}
+		providerPid := "transfer-prov-" + fmt.Sprintf("%d", time.Now().UnixNano())
+
+		tp := &cpdomain.TransferProcess{
+			ID:                  providerPid,
+			CorrelationID:       consumerPid,
+			ContractAgreementID: "agreement-test-99",
+			AssetID:             "dataset-asset-01",
+			State:               cpdomain.StateTransferInitial,
+			DataDestination: cpdomain.DataAddress{
+				Type: "HttpProxy",
+			},
+			CreatedAt: time.Now(),
+			UpdatedAt: time.Now(),
+		}
+		
+		_ = transferStore.Save(r.Context(), tp)
+
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusCreated)
+		json.NewEncoder(w).Encode(map[string]any{
+			"@context": jsonld.DSPContextArray(),
+			"@type": "dspace:TransferProcess",
+			"dspace:providerPid": providerPid,
+			"dspace:consumerPid": consumerPid,
+			"dspace:state": "INITIAL",
+		})
+	})
+
+	mux.HandleFunc("GET /api/dsp/2025-1/transferprocesses/{providerPid}", func(w http.ResponseWriter, r *http.Request) {
+		providerPid := r.PathValue("providerPid")
+		tp, err := transferStore.FindByID(r.Context(), providerPid)
+		if err != nil {
+			http.Error(w, "Not Found", http.StatusNotFound)
+			return
+		}
+		
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(map[string]any{
+			"@context":           jsonld.DSPContextArray(),
+			"@type":              "dspace:TransferProcess",
+			"dspace:providerPid": tp.ID,
+			"dspace:consumerPid": tp.CorrelationID,
+			"dspace:state":       tp.State.String(),
+		})
+	})
+
+	mux.HandleFunc("POST /api/dsp/2025-1/transferprocesses/{providerPid}/start", func(w http.ResponseWriter, r *http.Request) {
+		providerPid := r.PathValue("providerPid")
+		tp, err := transferStore.FindByID(r.Context(), providerPid)
+		if err == nil {
+			_ = tp.Transition(cpdomain.StateTransferStarted)
+			_ = transferStore.Update(r.Context(), tp)
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(map[string]any{
+			"@context":           jsonld.DSPContextArray(),
+			"dspace:providerPid": providerPid,
+		})
+	})
+
+	mux.HandleFunc("POST /api/dsp/2025-1/transferprocesses/{providerPid}/completion", func(w http.ResponseWriter, r *http.Request) {
+		providerPid := r.PathValue("providerPid")
+		tp, err := transferStore.FindByID(r.Context(), providerPid)
+		if err == nil {
+			_ = tp.Transition(cpdomain.StateTransferCompleted)
+			_ = transferStore.Update(r.Context(), tp)
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(map[string]any{
+			"@context":           jsonld.DSPContextArray(),
+			"dspace:providerPid": providerPid,
+		})
+	})
+
+	mux.HandleFunc("POST /api/dsp/2025-1/transferprocesses/{providerPid}/suspension", func(w http.ResponseWriter, r *http.Request) {
+		providerPid := r.PathValue("providerPid")
+		tp, err := transferStore.FindByID(r.Context(), providerPid)
+		if err == nil {
+			_ = tp.Transition(cpdomain.StateTransferSuspended)
+			_ = transferStore.Update(r.Context(), tp)
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(map[string]any{
+			"@context":           jsonld.DSPContextArray(),
+			"dspace:providerPid": providerPid,
+		})
+	})
+
+	mux.HandleFunc("POST /api/dsp/2025-1/transferprocesses/{providerPid}/termination", func(w http.ResponseWriter, r *http.Request) {
+		providerPid := r.PathValue("providerPid")
+		tp, err := transferStore.FindByID(r.Context(), providerPid)
+		if err == nil {
+			_ = tp.Transition(cpdomain.StateTransferTerminated)
+			_ = transferStore.Update(r.Context(), tp)
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(map[string]any{
+			"@context":           jsonld.DSPContextArray(),
+			"dspace:providerPid": providerPid,
 		})
 	})
 

@@ -4,6 +4,7 @@ go 1.26.3
 
 require (
 	github.com/DATA-DOG/go-sqlmock v1.5.2
+	github.com/google/uuid v1.6.0
 	github.com/lib/pq v1.12.3
 	go.opentelemetry.io/otel v1.44.0
 	go.opentelemetry.io/otel/metric v1.44.0

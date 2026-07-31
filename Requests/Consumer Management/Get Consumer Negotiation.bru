@@ -1,0 +1,25 @@
+meta {
+  name: Get Consumer Negotiation
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{CONSUMER_CP}}/api/consumer/v4/contractnegotiations/{{CONTRACT_NEGOTIATION_ID}}
+  body: none
+  auth: inherit
+}
+
+script:post-response {
+  test("Status code is >=200 and <300", function () {
+      expect(res.getStatus() < 300 && res.getStatus() >= 200).to.be.true
+  });
+  if (res.getBody()["contractAgreementId"]) {
+      bru.setVar("CONTRACT_AGREEMENT_ID", res.getBody()["contractAgreementId"])
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
