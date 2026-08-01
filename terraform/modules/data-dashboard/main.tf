@@ -67,3 +67,30 @@ resource "kubernetes_service" "data_dashboard" {
     }
   }
 }
+
+resource "kubernetes_manifest" "data_dashboard_ingressroute" {
+  manifest = {
+    apiVersion = "traefik.io/v1alpha1"
+    kind       = "IngressRoute"
+    metadata = {
+      name      = "data-dashboard-ingressroute"
+      namespace = var.namespace
+    }
+    spec = {
+      entryPoints = ["web"]
+      routes = [
+        {
+          match = "Host(`${var.host}`)"
+          kind  = "Rule"
+          services = [
+            {
+              name = kubernetes_service.data_dashboard.metadata[0].name
+              port = 8084
+            }
+          ]
+        }
+      ]
+    }
+  }
+}
+

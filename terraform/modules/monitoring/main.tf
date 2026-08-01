@@ -127,3 +127,56 @@ resource "kubernetes_service" "grafana" {
     }
   }
 }
+
+resource "kubernetes_manifest" "prometheus_ingressroute" {
+  manifest = {
+    apiVersion = "traefik.io/v1alpha1"
+    kind       = "IngressRoute"
+    metadata = {
+      name      = "prometheus-ingressroute"
+      namespace = var.namespace
+    }
+    spec = {
+      entryPoints = ["web"]
+      routes = [
+        {
+          match = "Host(`${var.prometheus_host}`)"
+          kind  = "Rule"
+          services = [
+            {
+              name = kubernetes_service.prometheus.metadata[0].name
+              port = 9090
+            }
+          ]
+        }
+      ]
+    }
+  }
+}
+
+resource "kubernetes_manifest" "grafana_ingressroute" {
+  manifest = {
+    apiVersion = "traefik.io/v1alpha1"
+    kind       = "IngressRoute"
+    metadata = {
+      name      = "grafana-ingressroute"
+      namespace = var.namespace
+    }
+    spec = {
+      entryPoints = ["web"]
+      routes = [
+        {
+          match = "Host(`${var.grafana_host}`)"
+          kind  = "Rule"
+          services = [
+            {
+              name = kubernetes_service.grafana.metadata[0].name
+              port = 3000
+            }
+          ]
+        }
+      ]
+    }
+  }
+}
+
